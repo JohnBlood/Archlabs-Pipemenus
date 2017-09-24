@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# drop out on error
+set -e
+
+## Declaring some variables
+storage="$HOME/.config/openbox/menu-switcher"
+menubase="$storage/menu-static.xml"
+
+## backup current menu.xml to $config/menu-static.xml
+mkdir -p "$storage"
+cp $HOME/.config/openbox/menu.xml $HOME/.config/openbox/menu-switcher/menu-static.xml
+
+## Check for backup & setup new menu
+if [ -f "$menubase" ]; then
+  obmenu-generator -p -c
+
+else
+  notify-send 'Ooops!' 'A backup was never made & is required.. Nothing was changed.'
+
+fi

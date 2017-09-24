@@ -169,14 +169,12 @@ PICKX="X configs"
 ### END CONFIGS VARIABLES
 
 ### DIALOG VARIABLES
-DIALOG="yad --center --undecorated --borders=20 --window-icon=distributor-logo-archlabs"
-DIALOGDEC="yad --center  --borders=20 --window-icon=distributor-logo-archlabs"
+DIALOG="zenity --window-icon=distributor-logo-archlabs"
+DIALOGDEC="zenity --html --window-icon=distributor-logo-archlabs"
 TITLE="ALOB Configuration Manager"
 T="--text="
-OK="--button=OK:0"
-CANCEL="--button=gtk-cancel:1"
-EXIT="--button=gtk-quit:1"
-CLOSE="--button=gtk-close:1"
+OK="--ok-label=Ok"
+CANCEL="--cancel-label=Cancel"
 TXTINTRO='<big><b>ArchLabs Openbox Configuration Manager</b></big>
 
 
@@ -209,17 +207,15 @@ function Intro(){
     getSet
     #  If alob/ is empty, then don't display "View Saved" option in Intro dialog
     if (( NUMDIRS > 0 ));then
-        INTRO=$($DIALOGDEC "$T$TXTINTRO" \
+        INTRO=$($DIALOGDEC "$TXTINTRO" \
         --title="$TITLE" \
-        --button="Save Settings:0" --button="View Saved:2" $CLOSE \
-        --borders=30 \
+        ---extra-button="Save Settings:0" --extra-button="View Saved:2" \
         2>/dev/null )
     else
         INTRO=$($DIALOGDEC \
         --title="$TITLE" \
-        "$T$TXTINTRO" \
-        --button="Save Settings:0" --button="gtk-close:1" \
-        --borders=30 \
+        "$TXTINTRO" \
+        --extra-button="Save Settings:0" $CANCEL \
         2>/dev/null )
     fi
     RET=$?
@@ -275,7 +271,7 @@ function setName(){  # set name of collection, make dir and session settings fil
     DEL=0
     while [[ $LOOP ]];do  # loop dialog if nothing is selected
         ANS=$($DIALOG --entry \
-            $CANCEL --button="OK:0" \
+            "$CANCEL" "$OK" \
             "$T$MSG" \
             2>/dev/null )
         if (( $? == 1 )) ;then # Cancel was selected
@@ -906,9 +902,8 @@ function saveSettings(){
     while (( SLOOP == 1 ));do
         CHOICE=$($DIALOGDEC --list --checklist \
             --title="Choose the configs to save..." \
-            --button="Select All:2" \
+            --extra-button="Select All:2" \
             $CANCEL $OK \
-            --height=340 \
             --column="Select" --column="Config" "${COLUMNS[@]}" \
             2>/dev/null )
             ret=$?
@@ -924,8 +919,7 @@ function saveSettings(){
             if [[ ! $CHOICE ]] ; then # entry field is empty, so try again
                 RET=$($DIALOG  --image="dialog-question" \
                 --text="\n  Make a selection...." \
-                $EXIT $OK \
-                --width=300 \
+                $CANCEL $OK \
                 2>/dev/null )
                 if (( $? == 1 ));then
                     cleanup all
@@ -1043,9 +1037,9 @@ function restoreSettings(){
         CONFIG=$($DIALOGDEC --list --title="$TITLE" \
             --text="Double-click selection, or \"Enter\", or use the \"Restore\" button to restore settings\n" \
             --separator=" " \
-            --button="About:5" \
-            --button="View image:4" --button="Add New:3" \
-            --button="Delete:2" --button="Restore:0" --button="gtk-quit:1" \
+            --extra-button="About:5" \
+            --extra-button="View image:4" --extra-button="Add New:3" \
+            --extra-button="Delete:2" --extra-button="Restore:0" "$CANCEL" \
             --always-print-result \
             --width=$W --height=$H --center --image-preview \
             --expand-column=3 \
@@ -1072,7 +1066,7 @@ function restoreSettings(){
             1)  exit 0
                 ;;
             2)  if [[ ! $CONFIG ]];then
-                    $DIALOG --text="Make a selection before trying to delete" "$EXIT" "$OK" 2>/dev/null
+                    $DIALOG --text="Make a selection before trying to delete" "$CANCEL" "$OK" 2>/dev/null
                     if (( $? == 0 ));then
                         continue
                     else

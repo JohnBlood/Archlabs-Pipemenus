@@ -17,18 +17,18 @@
 CONKYPATH="$HOME/.config/conky"
 
 ### DIALOG VARIABLES
-DLGDEC="yad --center  --borders=20 --width=400 --height=500 "
+DLGDEC="zenity --width=400 --height=500 "
 TITLE="ARCHLabs Conky Edit"
 WINICON="--window-icon=distributor-logo-bunsenlabs"
-OK="--button=OK:0"
-CANCEL="--button=gtk-cancel:1"
+OK="--ok-label=Ok"
+CANCEL="--cancel-label=Cancel"
 
 ########## FUNCTIONS ###################################################
 
 fillArrays(){
     num="$1"
     conkysPath[$num]="$2"   # full filepath to conky
-    conkysArr[$num]="$3"    # displayed name: "directory/*conky(rc)" 
+    conkysArr[$num]="$3"    # displayed name: "directory/*conky(rc)"
 }
 
 findConky(){
@@ -37,14 +37,14 @@ findConky(){
 
 num=0
 # find files in CONKYPATH with conky in the name
-for x in $(find "$CONKYPATH" -type f );do 
+for x in $(find "$CONKYPATH" -type f );do
     f=$(basename "$x")    # filename from filepath
     if [[ $f = *conkyrc ]] || [[ $f = *conky ]];then
         # filename ends with *conky or *conkyrc
         # get directory/conkyname to display in list
         CONKY=$( echo "$x" | awk -F"/" '{print $(NF-1)"/"$NF}')
         fillArrays $num "$x" "$CONKY"
-        num=$(($num+1)) 
+        num=$(($num+1))
     fi
 done
 }
@@ -63,7 +63,7 @@ done
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
     --text="Select Conkys to edit from the list\nMultiple Conkys can be chosen" \
     --checklist \
-    --column="Select:CHK" --column="Conky Name:TXT" $LISTCONKY --separator=":"\
+    --column="Select" --column="Conky Name" $LISTCONKY --separator=":"\
     $OK $CANCEL \
     )
 
@@ -73,23 +73,23 @@ else
     i=0
     OIFS=$IFS   # save Internal Field Separator
     IFS=":"     # separator is ":" in returned choices
-    for name in $RET; do 
+    for name in $RET; do
         retConky[$i]="$name"
         i=$(($i+1))
     done
     IFS=$OIFS   # reset IFS back to default
-    
+
     # Find the chosen conkys and edit them
     for name in ${retConky[*]};do       # loop through checkmarked conky names
         for ((j=0; j<${#conkysPath[*]}; j++));do  # traverse through elements
             for f in ${conkysPath[j]};do    # compare with choice from dialog
                 display=$( echo "$f" | awk -F"/" '{print $(NF-1)"/"$NF}')
                 if [[ $display = $name ]];then
-                    geany "$f"
+                    exo-open "$f"
                 fi
             done
         done
-    done 
+    done
 fi
 
 exit 0

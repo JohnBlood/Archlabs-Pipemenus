@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# nvidia
+clear
+printf "\n  Which nvidia drivers do you need?\n
+  1)Nvidia  2)Current Nvidia  3)Nvidia+bumblebee  4)Nouveau  5)None (default)
+
+  1)Autodetect  2)Newer cards fail autodetect  3)Laptops with mixed GPU\n\n  "
+read -r nvd
+clear
+
+if [ "$nvd" == "1" ]; then
+  sudo install-nvidia
+
+elif [ "$nvd" == "2" ]; then
+  sudo install-nvidia -f
+
+elif [ "$nvd" == "3" ]; then
+  sudo install-nvidia -b
+
+elif [ "$nvd" == "4" ]; then
+  sudo install-nvidia -n
+
+else
+  echo -e "\n  No drivers selected"
+
+fi
+
+if [[ "$nvd" =~ ^[1-3]$ ]]; then
+	sudo pacman -S xorg-server-devel --needed --noconfirm
+
+	if [[ "$nvd" =~ ^[1-2]$ ]]; then
+		sudo nvidia-xconfig
+
+	fi
+
+  sudo rm -f /etc/xorg.conf.d/20-nvidia.conf
+
+fi
+
+# check for existing configs and make sure no autostart entry exists
+if [ -e "/etc/xdg/autostart/nvidia-easy-install.desktop" ]; then
+  sudo rm -f /etc/xdg/autostart/nvidia-easy-install.desktop
+fi
+
+if [ -e "/home/$USER/.config/i3/config" ]; then
+  sed -i 's/exec --no-startup-id sleep 5; termite --exec=\/usr\/bin\/nvidia-easy-install//g' /home/$USER/.config/i3/config
+fi
+
+
+printf "\n  Installation finished you can run this again anytime [nvidia-easy-install]
+  Press any key to exit or simply close the window..\n\n  "
+read -r fin

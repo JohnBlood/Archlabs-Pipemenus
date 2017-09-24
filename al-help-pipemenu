@@ -50,7 +50,6 @@ menuStart
 menuSeparator 'ArchLabs Linux Online'
 menuSeparator
 menuItem 'ArchLabs Homepage' 'exo-open "https://archlabsblog.wordpress.com/"'
-menuItem 'ArchLabs Reddit' 'exo-open "https://www.reddit.com/r/ArchLabsLinux/"'
 menuItem 'ArchLabs Medium' 'exo-open "https://medium.com/@archlabslinux"'
 menuItem 'ArchLabs Forum' 'exo-open "http://archlabs.prophpbb.com/"'
 menuItem 'ArchLabs Google+' 'exo-open "https://plus.google.com/u/0/communities/111177505820810068511"'
@@ -75,18 +74,19 @@ menuItem 'Urukramas Openbox Guide' 'exo-open "https://urukrama.wordpress.com/ope
 menuItem 'Openbox Reddit' 'exo-open "https://www.reddit.com/r/openbox/"'
 menuSubmenuEnd
 
-menuSubmenu 'Tint2WWW' 'Tint2'
+menuSubmenu 'PanelWWW' 'Tint2'
 menuItem 'Tint2 Wiki: FAQ' 'exo-open "https://gitlab.com/o9000/tint2/wikis/FAQ"'
 menuItem 'Tint2 Wiki: Configuration' 'exo-open "https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md"'
-menuItem 'Tint2 Forum Thread' 'exo-open "https://forums.bunsenlabs.org/viewtopic.php?id=254"'
-menuItem 'Tint2 Man Pages' 'urxvt -T "Tint2 man page" -e man tint2'
+menuItem 'Polybar Wiki' 'exo-open "https://github.com/jaagr/polybar/wiki"'
+menuItem 'Polybar Man Pages' 'termite --exec=man polybar'
+menuItem 'Tint2 Man Pages' 'termite --exec=man tint2'
 menuSubmenuEnd
 
 menuSubmenu 'ConkyWWW' 'Conky'
 menuItem 'Conky Wiki' 'exo-open "https://github.com/brndnmtthws/conky/wiki"'
 menuItem 'Conky Archive' 'exo-open "http://crunchbang.org/forums/viewtopic.php?pid=371424"'
 menuItem 'Conky Reddit' 'exo-open "https://www.reddit.com/r/conky/"'
-menuItem 'Conky Man Pages' 'urxvt -T "Conky man page" -e man conky'
+menuItem 'Conky Man Pages' 'termite --exec=man conky'
 menuSubmenuEnd
 menuSeparator
 
@@ -101,14 +101,13 @@ menuItem 'nixers.net' 'exo-open "http://nixers.net/"'
 menuSubmenuEnd
 
 menuSeparator 'Man Pages'
-menuItem 'Compositor' 'urxvt -T "Compositor man page" -e man compton'
-menuItem 'Dmenu' 'urxvt -T "dmenu man page" -e man dmenu'
-menuItem 'Xrandr' 'urxvt -T "xrandr man page" -e man xrandr'
-menuItem 'Yad' 'urxvt -T "yad man page" -e man yad'
+menuItem 'Compositor' 'termite --exec=man compton'
+menuItem 'Rofi' 'termite --exec=man rofi'
+menuItem 'Xrandr' 'termite --exec=man xrandr'
+menuItem 'Zenity' 'termite --exec=man zenity'
 
 menuSeparator 'Wikis'
 menuItem 'Arch Wiki' 'exo-open "https://wiki.archlinux.org/index.php/Table_of_contents"'
 menuItem 'Termite' 'exo-open "https://wiki.archlinux.org/index.php/termite"'
 
 menuEnd
-

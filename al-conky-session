@@ -9,6 +9,9 @@
 #
 #      (sleep 2s && al-conky-session --autostart) &
 #
+#
+##	Renamed and Rewritten for ArchLabs and zenity
+#
 ########################################################################
 CONKYPATH="$HOME/.config/conky"
 SESSIONFILE="$CONKYPATH/conky-sessionfile"
@@ -27,11 +30,11 @@ USAGE="\vUSAGE:\tal-conky-session [OPTION(S)]...FILES
 \t\"al-conky-session --default sessionfile1 sessionfile2 etc\""
 
 ### DIALOG VARIABLES
-DLG="yad --center --undecorated --borders=20 "
+DLG="zenity "
 TITLE="ArchLabs Conky Session"
-WINICON="--window-icon=distributor-logo-bunsenlabs"
-OK="--button=OK:0"
-CANCEL="--button=gtk-cancel:1"
+WINICON="--window-icon=distributor-logo-archlabs"
+OK="--ok-label=Ok"
+CANCEL="--cancel-label=Cancel"
 
 ########################################################################
 
@@ -93,7 +96,7 @@ if (( $# == 0 )); then    # if no args, then run default sessionfile
 elif [[ $1 = "-h" ]] || [[ $1 = "--help" ]]; then
     echo -e "$USAGE"
     exit 0
-else 
+else
     findArgs $@    # get the sessionfile paths from the command args
 fi
 

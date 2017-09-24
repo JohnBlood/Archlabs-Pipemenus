@@ -20,7 +20,7 @@
 
 # al-kb is used to parse rc.xml and send the output to a textfile
 
-#	Renamed for ArchLabs
+#	Renamed and Rewritten for ArchLabs and zenity
 
 HELP='    al-kb-pipemenu an Openbox Pipe Menu for displaying keybinds
     It should normally be called from an openbox menu.
@@ -49,14 +49,14 @@ do
     esac
 done
 
-BL_COMMON_LIBDIR="/usr/lib/archlabs/common"
+AL_COMMON_LIBDIR="/usr/lib/archlabs/common"
 USR_CFG_DIR="$HOME/.config/openbox"
 KBSCRIPT="al-kb"
 RCPATH="$USR_CFG_DIR/rc.xml"
 KBTEXT="$USR_CFG_DIR/kbinds.txt"
 
-if ! . "$BL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
-    echo $"Error: Failed to locate al-include.cfg in $BL_COMMON_LIBDIR" >&2
+if ! . "$AL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
+    echo $"Error: Failed to locate al-include.cfg in $AL_COMMON_LIBDIR" >&2
     exit 1
 fi
 
@@ -73,7 +73,7 @@ if [[ $1 = '--rcedit' ]];then # "Backup & Edit rc.xml" is chosen in menu
     NOW=$(date +"%Y%m%d-%H%M")
     RCBKP="$RCPATH.$NOW"
     cp "$RCPATH" "$RCBKP"
-    geany "$RCPATH"        # open rc.xml in default editor
+    exo-open "$RCPATH"        # open rc.xml in default editor
     exit
 fi
 
@@ -105,7 +105,7 @@ fi
 menuStart
     menuItem "Backup and Edit rc.xml" "al-kb-pipemenu --rcedit"
     menuSeparator
-    menuItem "Display Keybinds in new window" "al-kb --gui"
+    menuItem "Display Keybinds in window" "al-kb --gui"
     echo '        <menu execute="al-kb-pipemenu --keybinds" id="Display keybinds" label="Display Keybinds in menu"/>'
 menuEnd
 

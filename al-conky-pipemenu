@@ -109,14 +109,14 @@ loadPinMenu(){
 }
 
 loadEditMenu(){
-    menuItem "Default conkyrc" "geany $CONKYDEFAULT"
+    menuItem "Default conkyrc" "exo-open $CONKYDEFAULT"
     if [[ $(pidof conky) ]];then
         menuSubmenu "RunningConky" "Running Conkys"
         while read -r session ;do  # get running conkys from sessionfile
             [[ -z $session ]] && continue
             CPATH=$(echo "$session" | awk '{print $3}')
             CONKY=$(echo "$CPATH" | awk -F"/" '{print $(NF-1)"/"$NF }')
-            menuItem "$CONKY" "geany $CPATH"
+            menuItem "$CONKY" "exo-open $CPATH"
         done < "$CSESSIONFILE"
         menuSubmenuEnd
     else
@@ -136,11 +136,11 @@ getConkys(){
 }
 
 checkHelpfile(){
-    DLG="yad --text-info --center --borders=20 \
+    DLG="zenity --text-info \
     --title='ArchLabs Conky Manager Help' \
-    --filename=$HELPFILE --fontname=Monospace \
+    --filename=$HELPFILE \
     --width=650 --height=700 \
-    --button=OK:0"
+    --ok-label=OK"
     if [[ -e $HELPFILE ]];then
         menuItem "Conky Manager Help" "$DLG"
     fi

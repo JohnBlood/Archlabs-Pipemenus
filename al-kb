@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 #    al-kb: a script to read openbox's rc.xml and write out the keybinds
@@ -167,10 +167,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if gui:     # output formatted keybinds text in text window
-        dlg = "yad --text-info --title='Openbox Keybinds' "
+        dlg = "zenity --text-info --title='Openbox Keybinds' "
         dlg = dlg + "--window-icon=distributor-logo-archlabs "
         dlg = dlg + "--filename=$HOME/.config/openbox/kbinds.txt "
-        dlg = dlg + "--width=700 --height=700 --fontname=Monaco "
-        dlg = dlg + "--button=gtk-close"
+        dlg = dlg + "--width=700 --height=700 "
         os.system(dlg)
-

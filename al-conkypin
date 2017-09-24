@@ -5,9 +5,8 @@
 #   Written by @damo and @johnraff, November 2015
 #   with major contributions by @xaos52
 
-DIALOG="yad --center --undecorated --borders=20 \
---window-icon=distributor-logo-bunsenlabs"
-
+DIALOG="zenity --info --window-icon=distributor-logo-archlabs"
+QUESTION="zenity --question --window-icon=distributor-logo-archlabs"
 unset CONKYPATH posX_1 posY_1 posX_2 posY_2 OFFSET_X OFFSET_Y gapX gapY
 
 # makes array "config"
@@ -98,7 +97,7 @@ function getStart(){    #   Get initial Conky position
         posY_1=${info1[Absolute upper-left Y]}
     else
         echo "Selection is not a conky"
-        $DIALOG --button="OK:0" --button="Exit:1" --text="Selection is not a conky\n\nChoose again?"
+        $QUESTION --ok-label=Yes --cancel-label=Cancel --text="Selection is not a conky\n\nChoose again?"
         if (( $? == 1 ));then
             echo "  Cancelled: exiting..."
             exit 0
@@ -126,7 +125,7 @@ function getFinish(){   #   Get new Conky position
 function getOffset(){   # parse_conkyfile should already have been run
     if [[ ${config[alignment]} = none ]];then   # placement managed by Openbox
         TXT="This Conky has 'alignment none'\nso placement is handled by the Window Manager.\n"
-        $DIALOG --text="$TXT" --button="OK"
+        $DIALOG --text="$TXT" --ok-label=Ok
         echo -e "\nConky has 'alignment none',\nso placement is handled by the Window Manager\nExiting...\n"
         exit 0
     fi
@@ -153,7 +152,7 @@ function getOffset(){   # parse_conkyfile should already have been run
 }
 
 ## check necessary tools are installed
-required_commands=(xwininfo xprop yad) # array, space-separated words
+required_commands=(xwininfo xprop zenity) # array, space-separated words
 
 error_exit() {
     echo "$0 error: $1" >&2
@@ -170,24 +169,30 @@ Please install the packages containing the missing commands
 and rerun the script."
 
 
-$DIALOG --text="Click 'Select Conky' to pick a conky.\n\nThen use the 'xwininfo' cursor on the chosen conky\nto record its position." \
-     --button="Select Conky:0" --button="gtk-cancel:1"
+$QUESTION --text="Click 'OK' to pick a conky.\n\nThen use the 'xwininfo' cursor on the chosen conky\nto record its position." \
+--ok-label=OK --cancel-label=Cancel
 
 if (( $? == 0 ));then
-    getStart
+  getStart
+elif (( $? == 1 ));then
+  echo "  Cancelled: exiting..."
+  exit 0
 else
-    echo "  Cancelled: exiting..."
-    exit 0
+  echo "  Cancelled: exiting..."
+  exit 0
 fi
 
-$DIALOG --text="Move the Conky to the desired location\nwith Alt+L-mousebutton Drag.\n\nClick 'OK' to set the new position." \
-     --button="OK:0" --button="gtk-cancel:1"
+$QUESTION --text="Move the Conky to the desired location\nwith Alt+L-mousebutton Drag.\n\nClick 'OK' to set the new position." \
+--ok-label=Ok --cancel-label=Cancel
 
 if (( $? == 0 ));then
-    getFinish
+  getFinish
+elif (( $? == 1 ));then
+  echo "  Cancelled: exiting..."
+  exit 0
 else
-    echo "  Cancelled: exiting..."
-    exit 0
+  echo "  Cancelled: exiting..."
+  exit 0
 fi
 
 parse_conkyfile "$CONKYPATH"

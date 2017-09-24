@@ -3,7 +3,7 @@
 #   Borrowed with Love from the Bunsen Lab boys.
 #	ArchLabs Conky selection and switcher script
 #	Renamed for ArchLabs
-#   
+#
 #	Written by damo <damo@bunsenlabs.org> for BunsenLabs Linux, April 2015
 #   Beta tested and stamped "zen" by <Sector11>
 #
@@ -36,7 +36,7 @@ CONKYPATH="$HOME/.config/conky"
 SESSIONFILE="$CONKYPATH/conky-sessionfile"
 SESSIONS="$CONKYPATH/saved-sessions"    # to be used by a pipemenu
 CRC="$HOME/.conkyrc"
-BLDEFAULT="$CONKYPATH/AL-Default.conkyrc"
+ALDEFAULT="$CONKYPATH/AL-Default.conkyrc"
 
 USAGE1="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
 \v\tWith no command option the script runs the gui
@@ -61,12 +61,12 @@ USAGE2="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
 \v\t\t(sleep 2s && al-conky-session --autostart) &\v"
 
 ### DIALOG VARIABLES
-DLG="yad --center --undecorated --borders=20 "
-DLGDEC="yad --center  --borders=20 "
+DLG="zenity --info"
+DLGDEC="zenity"
 TITLE="ArchLabs Conky Manager"
 WINICON="--window-icon=distributor-logo-archlabs"
-OK="--button=OK:0"
-CANCEL="--button=gtk-cancel:1"
+OK="--ok-label=Ok"
+CANCEL="--cancel-label=Cancel"
 
 ########## FUNCTIONS ###################################################
 conkyRunning(){    # find running conkys
@@ -183,7 +183,7 @@ for arg in "$@";do
                       ;;
         -z          ) SPATH=$($DLGDEC $WINICON --entry \
                         --title="Save Conky sessionfile" \
-                        --entry-label="New saved session file:" \
+                        --entry-text="New saved session file:" \
                         --text="File to be saved in <b>$CONKYPATH/</b>\n\n" \
                         $OK $CANCEL \
                         )
@@ -208,8 +208,8 @@ done
 
 # test for ~/.conkyrc, create a link to the default conky if necessary
 if ! [[ -e $CRC ]];then
-    if [[ -e $BLDEFAULT ]];then
-        ln -s "$BLDEFAULT" "$CRC"
+    if [[ -e $ALDEFAULT ]];then
+        ln -s "$ALDEFAULT" "$CRC"
     else
         echo "Default conkyrc not found"
     fi
@@ -230,7 +230,7 @@ while ! [[ $RET ]];do
     RET=$($DLGDEC $WINICON --list --title="$TITLE" \
         --text="Session will be saved to:\n <b>$SESSIONFILE</b>" \
         --checklist --width=400 --height=500 --multiple \
-        --column="Select:CHK" --column="Conky Name:TXT" $LISTCONKY \
+        --column="Select" --column="Conky Name" $LISTCONKY \
         --separator=":" \
         $OK $CANCEL \
         )
