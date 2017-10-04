@@ -1,7 +1,6 @@
 #!/bin/bash
 #    al-help-pipemenu - an Openbox pipemenu for displaying help files
 #    Copyright (C) 2015 damo    <damo@bunsenlabs.org>
-#    Borrowed with love by the ArchLabs Boys.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,14 +15,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#	Renamed for Archlabs
+#	Renamed for ARCHLabs
 
 HELP='    al-help-pipemenu an Openbox Pipe Menu for displaying help files
     It should normally be called from an openbox menu.
-
 Options (usually passed from the menu):
     -h --help   show this message
-
     If al-help-pipemenu is called with no options (the usual method),
     it will output an xml openbox pipemenu displaying various help files,
     both online and on the system.
@@ -47,18 +44,19 @@ if ! . "$AL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
 fi
 
 menuStart
-menuSeparator 'ArchLabs Linux Online'
+menuSeparator 'ARCHLABS LINUX ONLINE'
 menuSeparator
 menuItem 'ArchLabs Homepage' 'exo-open "https://archlabsblog.wordpress.com/"'
-menuItem 'ArchLabs Medium' 'exo-open "https://medium.com/@archlabslinux"'
-menuItem 'ArchLabs Forum' 'exo-open "http://archlabs.prophpbb.com/"'
+menuItem 'ArchLabs Reddit' 'exo-open "https://www.reddit.com/r/ArchLabsLinux/"'
+menuItem 'ArchLabs Forum' 'exo-open "https://www.tapatalk.com/groups/archlabs/index.php"'
 menuItem 'ArchLabs Google+' 'exo-open "https://plus.google.com/u/0/communities/111177505820810068511"'
 
-menuSeparator 'ArchLabs Linux Help'
+menuSeparator 'ARCHLABS LINUX HELP'
 menuSeparator
 menuItem 'Forum Basic Help & Support' 'exo-open "http://archlabs.prophpbb.com/forum7.html"'
-menuItem 'Scripts, Tutorials & Tips' 'exo-open "https://bbs.archlinux.org/viewforum.php?id=33"'
+menuItem 'Scripts, Tutorials & Tips' 'exo-open "https://www.tapatalk.com/groups/archlabs/configs-scripts-tutorials-and-tips-f13/"'
 
+menuSeparator 'GUIDES'
 menuSeparator
 
 menuSubmenu 'OpenboxWWW' 'Openbox'
@@ -74,40 +72,33 @@ menuItem 'Urukramas Openbox Guide' 'exo-open "https://urukrama.wordpress.com/ope
 menuItem 'Openbox Reddit' 'exo-open "https://www.reddit.com/r/openbox/"'
 menuSubmenuEnd
 
-menuSubmenu 'PanelWWW' 'Tint2'
+menuSubmenu 'Tint2WWW' 'Tint2'
 menuItem 'Tint2 Wiki: FAQ' 'exo-open "https://gitlab.com/o9000/tint2/wikis/FAQ"'
 menuItem 'Tint2 Wiki: Configuration' 'exo-open "https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md"'
+menuItem 'Tint2 Forum Thread' 'exo-open "https://forums.bunsenlabs.org/viewtopic.php?id=254"'
+menuSubmenuEnd
+
+menuSubmenu 'PolybarWWW' 'Polybar'
+menuItem 'Polybar GitHub' 'exo-open "https://github.com/jaagr/polybar"'
 menuItem 'Polybar Wiki' 'exo-open "https://github.com/jaagr/polybar/wiki"'
-menuItem 'Polybar Man Pages' 'termite --exec=man polybar'
-menuItem 'Tint2 Man Pages' 'termite --exec=man tint2'
+menuItem 'Polybar Inspiration' 'exo-open "https://www.reddit.com/r/unixporn/search?q=polybar&restrict_sr=on&sort=new&t=all"'
+menuSubmenuEnd
+
+menuSubmenu 'RofitWWW' 'Rofi'
+menuItem 'Rofi GitHub' 'exo-open "https://github.com/DaveDavenport/rofi"'
+menuItem 'Rofi Wiki' 'exo-open "https://github.com/DaveDavenport/rofi/wiki"'
+menuItem 'Rofi Inspiration' 'exo-open "https://www.reddit.com/r/unixporn/search?q=rofi&restrict_sr=on&sort=new&t=all"'
 menuSubmenuEnd
 
 menuSubmenu 'ConkyWWW' 'Conky'
 menuItem 'Conky Wiki' 'exo-open "https://github.com/brndnmtthws/conky/wiki"'
+menuItem 'Conky Inspiration' 'exo-open "https://www.reddit.com/r/unixporn/search?q=conky&restrict_sr=on&sort=new&t=all"'
 menuItem 'Conky Archive' 'exo-open "http://crunchbang.org/forums/viewtopic.php?pid=371424"'
 menuItem 'Conky Reddit' 'exo-open "https://www.reddit.com/r/conky/"'
-menuItem 'Conky Man Pages' 'termite --exec=man conky'
+menuSubmenuEnd
+
+menuSubmenu 'NeofetchWWW' 'Neofetch'
+menuItem 'Neofetch GitHub' 'exo-open "https://github.com/dylanaraps/neofetch"'
+menuItem 'Neofetch Wiki' 'exo-open "https://github.com/dylanaraps/neofetch/wiki"'
 menuSubmenuEnd
 menuSeparator
-
-menuSubmenu 'ThemesWWW' 'Theme Resources'
-menuItem 'Bunsenlabs on DeviantArt' 'exo-open "http://bunsenlabs.deviantart.com/"'
-menuItem 'Eye Candy Linux DeviantArt' 'exo-open "http://eye-candy-linux.deviantart.com/"'
-menuItem 'Box-Look.org' 'exo-open "http://www.box-look.org"'
-menuItem 'Gnome-Look.org' 'exo-open "http://gnome-look.org/"'
-menuItem 'Eye Candy Linux Google+' 'exo-open "https://plus.google.com/u/0/communities/104794997718869399105"'
-menuItem 'UnixPorn' 'exo-open "https://www.reddit.com/r/unixporn/"'
-menuItem 'nixers.net' 'exo-open "http://nixers.net/"'
-menuSubmenuEnd
-
-menuSeparator 'Man Pages'
-menuItem 'Compositor' 'termite --exec=man compton'
-menuItem 'Rofi' 'termite --exec=man rofi'
-menuItem 'Xrandr' 'termite --exec=man xrandr'
-menuItem 'Zenity' 'termite --exec=man zenity'
-
-menuSeparator 'Wikis'
-menuItem 'Arch Wiki' 'exo-open "https://wiki.archlinux.org/index.php/Table_of_contents"'
-menuItem 'Termite' 'exo-open "https://wiki.archlinux.org/index.php/termite"'
-
-menuEnd

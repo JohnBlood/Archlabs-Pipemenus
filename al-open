@@ -24,30 +24,26 @@ if [[ "$@" == *web* ]]; then
   chro_mium=$(wmctrl -l | grep -i "Chromium" | cut -d " " -f3 | head -n1)
   if [[ "$chro_me" =~ ^[0-9]$ ]]; then
     web_desktop="$chro_me"
-
+    browser="google-chrome-stable"
   elif [[ "$chro_mium" =~ ^[0-9]$ ]]; then
     web_desktop="$chro_mium"
-
+    browser="chromium"
   elif [[ "$ope_ra" =~ ^[0-9]$ ]]; then
     web_desktop="$ope_ra"
-
+    browser="opera"
   else
     web_desktop="$fire_fox"
-
+    browser="firefox"
   fi # if none of the above the $web_desktop will be empty
-
 
   # if browser exists go to that desktop
   if [[ "$web_desktop" =~ ^[0-9]$ ]]; then
-    wmctrl -s "$web_desktop"
-
+    wmctrl -xa $browser
   else  # if browser doesnt exist, open it then go to that desktop
     exo-open --launch WebBrowser
-    wmctrl -s "$web_desktop"
+    wmctrl -xa "$browser"
     exit 0
-
   fi
-
 
 elif [[ "$@" == *file* ]]; then
   # try to find file manager already open
@@ -56,28 +52,22 @@ elif [[ "$@" == *file* ]]; then
   # if file manager exists go to that desktop
   if [[ "$file_desktop" =~ ^[0-9]$ ]]; then
     wmctrl -s "$file_desktop"
-
   else # if file manager doesnt exist, open it then go to that desktop
     wmctrl -s 1
     exo-open --launch FileManager
     exit 0
-
   fi
-
 
 elif [[ "$@" == *term* ]]; then
   # try to find terminals already open
   terminal_desktop=$(wmctrl -l | grep -i "${USER}@" | cut -d " " -f3 | head -n1)
-
   # if terminal exists go to that desktop
   if [[ "$terminal_desktop" =~ ^[0-9]$ ]]; then
     wmctrl -s "$terminal_desktop"
-
   else # if terminal doesnt exist, open it then go to that desktop
     wmctrl -s "$terminal_desktop"
     exo-open --launch TerminalEmulator
     exit 0
-
   fi
 
 elif [[ "$@" == *music* ]]; then
@@ -88,28 +78,25 @@ elif [[ "$@" == *music* ]]; then
   auda_cious=$(wmctrl -l | grep -i "audacious" | cut -d " " -f3 | head -n1)
   if [[ "$lolly_pop" =~ ^[0-9]$ ]]; then
     music_desktop="$lolly_pop"
-
+    music_player="lollypop"
   elif [[ "$rythm_box" =~ ^[0-9]$ ]]; then
     music_desktop="$rythm_box"
-
+    music_player="rythmbox"
   elif [[ "$clemen_tine" =~ ^[0-9]$ ]]; then
     music_desktop="$clemen_tine"
-
+    music_player="clementine"
   else
     music_desktop="$auda_cious"
-
+    music_player=$MUSIC_PLAYER
   fi # if none of the above the $music_desktop will be empty
-
 
   # if music player exists go to that desktop
   if [[ "$music_desktop" =~ ^[0-9]$ ]]; then
-    wmctrl -s "$music_desktop"
-
+    wmctrl -xa $music_player
   else # if music player doesnt exist, open it then go to that desktop
-    wmctrl -s 0
     $MUSIC_PLAYER &
+    wmctrl -xa $MUSIC_PLAYER
     exit 0
-
   fi
 
 elif [[ "$@" == *edit* ]]; then
@@ -120,38 +107,33 @@ elif [[ "$@" == *edit* ]]; then
   gea_ny=$(wmctrl -l | grep -i "geany" | cut -d " " -f3 | head -n1)
   if [[ "$mouse_pad" =~ ^[0-9]$ ]]; then
     editor_desktop="$mouse_pad"
-
+    editor="mousepad"
   elif [[ "$at_om" =~ ^[0-9]$ ]]; then
     editor_desktop="$at_om"
-
+    editor="atom"
   elif [[ "$sub_lime" =~ ^[0-9]$ ]]; then
     editor_desktop="$sub_lime"
-
+    editor="subl3"
   else
     editor_desktop="$gea_ny"
-
+    editor=$TEXT_EDITOR
   fi
 
   # if editor exists go to that desktop
   if [[ "$editor_desktop" =~ ^[0-9]$ ]]; then
-    wmctrl -s "$editor_desktop"
-
+    wmctrl -xa "$editor"
   else # if editor doesnt exist, open it then go to that desktop
-    wmctrl -s 4
     $TEXT_EDITOR &
+    wmctrl -xa $TEXT_EDITOR
     exit 0
-
   fi
-
 elif [[ "$@" == *h* ]]; then
   clear
   echo -e "$help"
-
 else
   clear
   echo -e "$help"
   exit 1
-
 fi
 
 exit 0

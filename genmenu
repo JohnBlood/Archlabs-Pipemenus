@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 
-# drop out on error
-set -e
-
 ## Declaring some variables
 storage="$HOME/.config/openbox/menu-switcher"
 menubase="$storage/menu-static.xml"
+menu_cur="$HOME/.config/openbox/menu.xml"
 
-## backup current menu.xml to $config/menu-static.xml
+## backup current menu
 mkdir -p "$storage"
-cp $HOME/.config/openbox/menu.xml $HOME/.config/openbox/menu-switcher/menu-static.xml
 
-## Check for backup & setup new menu
-if [ -f "$menubase" ]; then
-  obmenu-generator -p -c
-
+if [ -e "$menu_cur" ]; then
+  cp $HOME/.config/openbox/menu.xml $HOME/.config/openbox/menu-switcher/menu-static.xml
 else
-  notify-send 'Ooops!' 'A backup was never made & is required.. Nothing was changed.'
-
+  notify-send 'Ooops!' 'Unable to find ~/.config/openbox/menu.xml.. Make sure it exists and try again.'
+  exit 1
 fi
+
+if [ -e "$menubase" ]; then
+  cp $HOME/.config/openbox/menu-switcher/menu-static.xml $HOME/.config/openbox/menu-switcher/menu-static.xml.bak
+  obmenu-generator -p
+else
+  notify-send 'Ooops!' 'A backup was never made & is required.. Check if your menu exists.'
+fi
+
+exit 0

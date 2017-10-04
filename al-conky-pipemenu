@@ -60,7 +60,7 @@ if [ ! -e "$SESSIONS" ] 2> /dev/null ; then
     echo "$0: Failed to locate saved-sessions in $CONKYPATH" >&2
 fi
 
-declareDependencies yad
+declareDependencies zenity
 
 getSessions(){  # read any saved sessions from save-sessions file
     menuItem "Default" "$CSESSION $CSESSIONFILE"

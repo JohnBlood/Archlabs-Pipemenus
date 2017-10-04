@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 
-# drop out on error
-set -e
 
 ## Declaring some variables
 menubase="$HOME/.config/openbox/menu-switcher/menu-static.xml"
-
+backup="$HOME/.config/openbox/menu-switcher/menu-static.xml.bak"
 ## switch to menubase
-if [ -f "$menubase" ]; then
+if [ -e "$menubase" ]; then
   cp $HOME/.config/openbox/menu-switcher/menu-static.xml $HOME/.config/openbox/menu.xml
   openbox --reconfigure
 
+elif [ -e "$backup" ]; then
+  cp $HOME/.config/openbox/menu-switcher/menu-static.xml.bak $HOME/.config/openbox/menu.xml
+  openbox --reconfigure
+
 else
-  notify-send 'Ooops!' 'It seems a backup was never made or is missing.'
+  notify-send 'Ooops!' 'Cannot find menu to restore. Please run genmenu again'
+  exit 1
 
 fi
+
+exit 0

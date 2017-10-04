@@ -27,4 +27,4 @@
 
 
 # do the launcher
-rofi -modi run,drun,window -lines 12 -width 60 -location 0 -show drun -sidebar-mode -columns 1 -font "Ubuntu 10"
+rofi -modi run,drun,window -show drun -sidebar-mode

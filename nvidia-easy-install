@@ -1,11 +1,30 @@
 #!/usr/bin/env bash
 
+
+blue='\E[1;34m'
+red='\E[1;31m'
+green='\E[1;32m'
+reg='\E[0m'
+
 # nvidia
 clear
-printf "\n  Which nvidia drivers do you need?\n
-  1)Nvidia  2)Current Nvidia  3)Nvidia+bumblebee  4)Nouveau  5)None (default)
+printf "\n  Which driver to install?\n
+  1${red})${reg}Legacy Nvidia  2${red})${reg}Current Nvidia  3${red})${reg}Nvidia+bumblebee  4${red})${reg}Nouveau
 
-  1)Autodetect  2)Newer cards fail autodetect  3)Laptops with mixed GPU\n\n  "
+
+  1 - Attempt to detect card, match it against a list of known cards and
+      install the appropriate drivers (meant for legacy drivers)
+
+  2 - Force install the current drivers, meant for newer cards that fail detection
+      (See link below if your card is supported by the newest drivers)
+
+  3 - Same as option 2 but also installs and enables bumblebeed.service etc.
+      (most Optimus solutions are compatible with the current drivers, see below)
+
+  4 - Revert to the open source Nouveau drivers
+
+
+      Please see:${green} http://www.nvidia.com/Download/index.aspx ${reg} for more info\n\n\n: "
 read -r nvd
 clear
 
@@ -22,19 +41,7 @@ elif [ "$nvd" == "4" ]; then
   sudo install-nvidia -n
 
 else
-  echo -e "\n  No drivers selected"
-
-fi
-
-if [[ "$nvd" =~ ^[1-3]$ ]]; then
-	sudo pacman -S xorg-server-devel --needed --noconfirm
-
-	if [[ "$nvd" =~ ^[1-2]$ ]]; then
-		sudo nvidia-xconfig
-
-	fi
-
-  sudo rm -f /etc/xorg.conf.d/20-nvidia.conf
+  echo -e "\n${red}  No drivers selected ${reg}\n"
 
 fi
 
@@ -47,7 +54,18 @@ if [ -e "/home/$USER/.config/i3/config" ]; then
   sed -i 's/exec --no-startup-id sleep 5; termite --exec=\/usr\/bin\/nvidia-easy-install//g' /home/$USER/.config/i3/config
 fi
 
+if [[ "$nvd" =~ ^[1-3]$ ]]; then
+	sudo pacman -S xorg-server-devel --needed --noconfirm
 
-printf "\n  Installation finished you can run this again anytime [nvidia-easy-install]
-  Press any key to exit or simply close the window..\n\n  "
-read -r fin
+	if [[ "$nvd" =~ ^[1-2]$ ]]; then
+		sudo nvidia-xconfig
+
+	fi
+
+  sudo rm -f /etc/xorg.conf.d/20-nvidia.conf
+
+  clear; printf "\n${green}  Installation finished you can run this again anytime [nvidia-easy-install]${reg}\n\n\n
+  Press any key to exit..\n\n  "
+  read -r fin
+
+fi

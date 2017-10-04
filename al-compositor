@@ -47,10 +47,10 @@ done
 
 RESTART_ATTEMPTS=20 # times to try killall before reverting to -s KILL
 
-BL_COMMON_LIBDIR='/usr/lib/archlabs/common'
+AL_COMMON_LIBDIR='/usr/lib/archlabs/common'
 
-if ! . "$BL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
-    echo $"Error: Failed to source al-include.cfg in $BL_COMMON_LIBDIR" >&2
+if ! . "$AL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
+    echo $"Error: Failed to source al-include.cfg in $AL_COMMON_LIBDIR" >&2
     exit 1
 fi
 
@@ -80,15 +80,12 @@ if [[ $1 = '--edit' ]]; then # Edit compton settings
     [[ ! -f $HOME/.config/compton.conf ]] &&
         cp '/etc/xdg/compton.conf' "$HOME/.config/compton.conf"
 
-    if type geany >/dev/null;then
-        geany "$HOME/.config/compton.conf"
-    else
-        termite -T 'edit compton.conf' -e nano "$HOME/.config/compton.conf"
-    fi
+    exo-open "$HOME/.config/compton.conf"
+
 elif [[ $1 = '--start' ]]; then
     if ! pidof compton > /dev/null; then
         $EXECXCOMP
-        al-tint2restart || true
+        # al-tint2restart || true
     else
         echo "$0 --start: compton already running" >&2
     fi
@@ -115,6 +112,7 @@ else
         menuItem 'Disable Compositing' "$0 --stop"
         menuSeparator
     fi
+    menuItem 'Compositing Settings GUI' "paranoid.py"
     menuItem 'Edit Compositing Settings' "$0 --edit"
     menuEnd
 fi

@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 
-START='oblogout'
-STOP="pkill oblogout"
-
-if pgrep -x oblogout > /dev/null
-    then
-        $STOP
+if ! pgrep -x oblogout > /dev/null; then
+  oblogout
 else
-    $START
+  killall oblogout
 fi
-
-exit 0
