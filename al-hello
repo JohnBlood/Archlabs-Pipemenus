@@ -322,7 +322,7 @@ if ! [ "${defaults,,}" = "${no,,}" ]; then
     read -r file
     if ! [[ $wm == *1* ]]; then
       if [[ $file == *1* ]] || [[ $file == *2* ]]; then
-        clear; printf "\n  Remove Thunar?  [y/n]: "
+        clear; printf "\n  Uninstall Thunar?  [y/n]: "
         read -r rmfile
       fi
     fi
@@ -431,12 +431,9 @@ if ! [ "${cosmetics,,}" = "${no,,}" ]; then
   1${red})${reg}conky  2${red})${reg}conky-lua  3${red})${reg}conky-lua-nv\n\n\n: "
   read -r conk
   if [[ $conk =~ ^[1-3]$ ]]; then
-    clear; printf "\n  Install Archlabs conky chooser & pipemenu?  [y/n]: "
+    clear; printf "\n  Setup Archlabs conky chooser & pipemenu?  [y/n]: "
     read -r alconk
   fi
-
-  clear; printf "\n  Install the Archlabs wallpaper selection?  [y/n]: "
-  read -r wall
 
   clear; printf "\n  Install some of our favorite additional fonts?  [y/n]: "
   read -r fnt
@@ -738,19 +735,6 @@ X-XFCE-Commands=google-chrome-stable' > /home/$USER/.local/share/xfce4/helpers/c
       fi
     fi
 
-    # policy kit
-    #if [ "${pol,,}" = "${yes,,}" ]; then
-    #  yaourt -S xfce-polkit --noconfirm --needed
-    #  if [[ $wm == *2* ]]; then
-    #    if (grep "xfce-polkit" $CONF_PATH/i3/config); then
-    #      sed -i '/xfce-polkit/ c\
-    #exec --no-startup-id \/usr\/lib\/xfce-polkit\/xfce-polkit' $CONF_PATH/i3/config
-    #    else
-    #      echo "exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit" >> $CONF_PATH/i3/config
-    #    fi
-    #  fi
-    #fi
-
     # pamac & polkit
     if [ "${pac,,}" = "${yes,,}" ]; then
       sudo pacman -S gcc fakeroot make automake autoconf pkg-config --noconfirm --needed
@@ -1022,11 +1006,6 @@ if ! [ "${cosmetics,,}" = "${no,,}" ]; then
   # nerd fonts
   if [ "${nfnt,,}" = "${yes,,}" ]; then
     yaourt -S nerd-fonts-complete --noconfirm --needed
-  fi
-
-  # wallpaper
-  if [ "${wall,,}" = "${yes,,}" ]; then
-    yaourt -S archlabs-wallpapers-git --noconfirm
   fi
 
   # conky
