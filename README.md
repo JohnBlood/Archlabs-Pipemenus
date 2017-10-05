@@ -1,22 +1,9 @@
 # Archlabs Pipemenus
 
-
-Destination : 
-
-content of this github needs to be placed in
-
-	/usr/bin
-
-excluding 
-
-	README.md
-	git-vx.sh
-	.git (folder)
+	'stable' contains the scripts used in packaging, they need to be placed in /usr/bin/
 
 
-All need to be made executable to work.
+	'TODO' Contains scripts that are broken or still needing work
 
-	chmod u+x al*
 
-Also **cleanup.sh** to clean up stuff after installation like liveuser. Do not delete.
-
+	'install-only' is scripts used only on the iso
