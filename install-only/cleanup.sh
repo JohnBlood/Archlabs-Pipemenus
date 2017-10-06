@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-
+# remove nopassword stuff & disable unwanted services
 rm -f /etc/sudoers.d/g_wheel
-rm -f /etc/polkit-1/rules.d/49-nopasswd_global.rules
-rm -rf /etc/systemd/system/{pacman-init.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d,default.target}
-#choose-mirror.service  choose-mirror.service
-#rm /etc/systemd/scripts/choose-mirror
-systemctl disable pacman-init.service
-rm /root/{.automated_script.sh,.zlogin}
 rm /etc/mkinitcpio-archiso.conf
-rm -r /etc/initcpio
+rm /root/{.automated_script.sh,.zlogin}
+rm -f /etc/polkit-1/rules.d/49-nopasswd_global.rules
+rm -rf /etc/systemd/system/{getty@tty1.service.d,default.target}
 
+
+# unsure if these are needed
+#rm etc/systemd/system/{pacman-init.service,etc-pacman.d-gnupg.mount}
+#rm -r /etc/initcpio
+#systemctl disable pacman-init.service
 
 # remove installers
 rm -rf /etc/calamares
@@ -28,10 +29,11 @@ sed -i 's/Install Archlabs/Lock Screen/g' /etc/skel/.config/openbox/menu.xml
 sed -i 's/install-al/i3lock-fancy -p/g' /etc/skel/.config/openbox/menu.xml
 
 # enable al-hello after install
-sed -i 's/#sleep 3; termite/sleep 3; termite/g' /etc/skel/.config/openbox/autostart
+sed -i 's/#sleep 5; termite/sleep 5; termite/g' /etc/skel/.config/openbox/autostart
 
 # fix boot messages
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nowatchdog systemd.legacy_systemd_cgroup_controller=true"/g' /etc/default/grub
+sed -i '/GRUB_CMDLINE_LINUX_DEFAULT/ c\
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nowatchdog systemd.legacy_systemd_cgroup_controller=true"' /etc/default/grub
 
 # remove this script
 rm /usr/bin/cleanup.sh

@@ -2,5 +2,3 @@
 
 sudo pkill calamares
 sudo exo-open /usr/share/applications/calamares.desktop
-
-exit 0
