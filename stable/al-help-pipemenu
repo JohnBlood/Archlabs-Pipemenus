@@ -45,27 +45,22 @@ fi
 
 menuStart
 menuSeparator 'ARCHLABS LINUX ONLINE'
-menuSeparator
 menuItem 'ArchLabs Homepage' 'exo-open "https://archlabsblog.wordpress.com/"'
 menuItem 'ArchLabs Reddit' 'exo-open "https://www.reddit.com/r/ArchLabsLinux/"'
 menuItem 'ArchLabs Forum' 'exo-open "https://www.tapatalk.com/groups/archlabs/index.php"'
 menuItem 'ArchLabs Google+' 'exo-open "https://plus.google.com/u/0/communities/111177505820810068511"'
 
 menuSeparator 'ARCHLABS LINUX HELP'
-menuSeparator
 menuItem 'Forum Basic Help & Support' 'exo-open "http://archlabs.prophpbb.com/forum7.html"'
 menuItem 'Scripts, Tutorials & Tips' 'exo-open "https://www.tapatalk.com/groups/archlabs/configs-scripts-tutorials-and-tips-f13/"'
 
 menuSeparator 'GUIDES'
-menuSeparator
 
 menuSubmenu 'OpenboxWWW' 'Openbox'
-menuSubmenu 'ObWWW' 'Openbox Website'
 menuItem 'Openbox Homepage' 'exo-open "http://openbox.org/"'
 menuItem 'Openbox Getting Started' 'exo-open "http://openbox.org/wiki/Help:Getting_started"'
 menuItem 'Openbox Documentation' 'exo-open "http://openbox.org/wiki/Help:Contents"'
 menuItem 'Openbox FAQs' 'exo-open "http://openbox.org/wiki/Help:FAQ"'
-menuSubmenuEnd
 menuItem 'Arch Wiki Openbox Guide' 'exo-open "http://wiki.archlinux.org/index.php/Openbox"'
 menuItem 'Debian Wiki Openbox Guide' 'exo-open "https://wiki.debian.org/Openbox"'
 menuItem 'Urukramas Openbox Guide' 'exo-open "https://urukrama.wordpress.com/openbox-faq/"'
@@ -101,4 +96,5 @@ menuSubmenu 'NeofetchWWW' 'Neofetch'
 menuItem 'Neofetch GitHub' 'exo-open "https://github.com/dylanaraps/neofetch"'
 menuItem 'Neofetch Wiki' 'exo-open "https://github.com/dylanaraps/neofetch/wiki"'
 menuSubmenuEnd
-menuSeparator
+
+menuEnd
