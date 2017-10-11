@@ -45,11 +45,11 @@ USAGE="\v\tUSAGE:\n\tWith no command argument, the script uses the chosen
 \v\t\t(sleep 2s && al-tint2-session) &"
 
 ### DIALOG VARIABLES
-DLGDEC="yad --center --borders=20 "
-TITLE="ArchLabs Tint2 Manager"
+DLGDEC="zenity"
+TITLE="ArchLabs Conky Manager"
 WINICON="--window-icon=distributor-logo-archlabs"
-OK="--button=OK:0"
-CANCEL="--button=gtk-cancel:1"
+OK="--ok-label=Ok"
+CANCEL="--cancel-label=Cancel"
 ########################################################################
 
 tintRunning(){
@@ -82,7 +82,7 @@ findTint(){
         # check if likely tint2 config file
         pm=$(grep  "panel_monitor" "$x")
         if [[ $pm ]];then
-            TINT2=$( echo $x | awk -F"/" '{print $(NF-1)"/"$NF}')
+            TINT2=$( echo $x | awk -F"/" '{print $NF}')
             fillArrays $num $x $TINT2
             num=$(($num+1))
         fi
@@ -114,9 +114,9 @@ done
 
 ## Populate dialog from array, get return value(s)
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-    --text="Select Tint2s from the list:" \
-    --checklist --width=350 --height=300 \
-    --column="Select" --column="tint2 Name" $LISTTINT --separator=":" \
+    --text="Select Tint2s from the list:\n" \
+    --checklist --width=450 --height=500 --multiple \
+    --column="Select" --column="Tint2 Name" $LISTTINT --separator=":" \
     $OK $CANCEL \
     )
 
@@ -144,17 +144,17 @@ else
     for name in ${retTint[*]};do       # loop through checkmarked tint2 names
         for ((j=0; j<${#tintsPath[*]}; j++));do  # traverse through elements
             for f in ${tintsPath[j]};do
-                display=$( echo $f | awk -F"/" '{print $(NF-1)"/"$NF}')
+                display=$( echo $f | awk -F"/" '{print $NF}')
                 # see if it matches the returned name
                 if [[ $display = $name ]];then
                     echo -e "$f" >> $SESSIONFILE
                     tint2 -c "$f" &  #start the tint2
+                    al-compositor --restart &   # restart compositor
                     sleep 1s
                 fi
             done
         done
     done
-#    al-compositor --restart &   # restart compositor
 fi
 
 rm -r $TEMPFILE

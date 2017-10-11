@@ -4,7 +4,10 @@
 ##
 ## any enquiries https://sourceforge.net/projects/archlabs-linux-minimo/
 
-
+# Remove itself from autostart
+if [ -e $HOME/.config/openbox/autostart ]; then
+  sed -i '/al-hello/d' $HOME/.config/openbox/autostart
+fi
 
 # i found this box somewhere and cannot remember
 draw_box(){
@@ -100,13 +103,16 @@ col=1    # Color (red)
 
 # set some paths
 BIN="/usr/bin"
-MENU="/home/$USER/.config/openbox/menu.xml"
-TINT_MENU="/home/$USER/.config/openbox/menu-tint.xml"
-RC_PATH="/home/$USER/.config/openbox/rc.xml"
-AUTOSTART="/home/$USER/.config/openbox/autostart"
-HELPERS="/home/$USER/.config/xfce4/helpers.rc"
-MIMEAPP="/home/$USER/.config/mimeapps.list"
-CONF_PATH="/home/$USER/.config"
+MENU="$HOME/.config/openbox/menu.xml"
+RC_PATH="$HOME/.config/openbox/rc.xml"
+AUTOSTART="$HOME/.config/openbox/autostart"
+HELPERS="$HOME/.config/xfce4/helpers.rc"
+MIMEAPP="$HOME/.config/mimeapps.list"
+CONF_PATH="$HOME/.config"
+
+# User interaction
+SAY="clear; echo -e"
+ASK="clear; printf"
 
 # determine if using nvidia graphics
 NV=$(lspci | grep -i "nvidia")
@@ -127,7 +133,7 @@ y='\E[1;33m'
 reg='\E[0m'
 
 # my thanks to the bunsenlabs guys for this nice little hello art
-clear; echo -e "\n\n\n${b}                               _   _ _____ _     _     ___
+$SAY "\n\n\n${b}                               _   _ _____ _     _     ___
                               | | | | ____| |   | |   / _ \\
                               | |_| |  _| | |   | |  | | | |
                               |  _  | |___| |___| |__| |_| |
@@ -148,7 +154,7 @@ clear
 printf "\n\n  Would you like to update the system & mirrorlist? (recommended) [y/n]: "
 read -r upd
 if ! [ "${upd,,}" = "${no,,}" ]; then
-  clear; echo -e "\nCurrent mirrorlist backed up to /etc/pacman.d/mirrorlist.backup"
+  $SAY "\nCurrent mirrorlist backed up to /etc/pacman.d/mirrorlist.backup"
   sleep 1
 
   sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
@@ -160,27 +166,33 @@ fi
 
 # if not a vm remove virtual utils
 if [ -z "${VM}" ]; then
-  sudo pacman -Rns virtualbox-guest-utils virtualbox-guest-dkms --noconfirm
   if [ -e /etc/xdg/autostart/vboxclient.desktop ]; then
     sudo rm -f /etc/xdg/autostart/vboxclient.desktop
+  fi
+  if (pacman -Q virtualbox-guest-dkms > /dev/null) ; then
+    sudo pacman -Rns virtualbox-guest-utils virtualbox-guest-dkms --noconfirm
+  elif (pacman -Q virtualbox-guest-modules-arch > /dev/null) ; then
+    sudo pacman -Rns virtualbox-guest-utils virtualbox-guest-modules-arch --noconfirm
+  else
+    $SAY "\n  No virtaulbox modules found"
   fi
 fi
 
 # Swapfile
 if free | awk '/^Swap:/ {exit !$2}'; then
-  clear; echo -e "\n${g}  Swap space found on disk. No setup needed${reg}"
+  $SAY "\n${g}  Swap space found on disk. No setup needed${reg}"
   sleep 1.5
 
 else
-  clear; printf "\n  Would you like to setup a swapfile? (required for suspend or sleep) [y/n]: "
+  $ASK "\n  Would you like to setup a swapfile? (required for suspend or sleep) [y/n]: "
   read -r swp
 
   if [ "${swp,,}" = "${yes,,}" ]; then
-    clear; printf "\n  Set a custom size? (defaults to size of system RAM) [y/n]: "
+    $ASK "\n  Set a custom size? (defaults to size of system RAM) [y/n]: "
     read -r cswp
 
     if [ "${cswp,,}" = "${yes,,}" ]; then
-      clear; printf "\n  Enter the size of swap wanted eg. [8192M] or [8G] for an 8gb system
+      $ASK "\n  Enter the size of swap wanted eg. [8192M] or [8G] for an 8gb system
   M = Mebibytes, G = Gibibytes (size of system RAM or greater required for sleep/suspend)\n\n\n: "
       read -r size
     fi
@@ -188,29 +200,29 @@ else
 fi
 
 if ! [ -z "${NV}" ]; then
-  clear; printf "\n  Do you want to install nvidia drivers?  [y/n]: "
+  $ASK "\n  Do you want to install nvidia drivers?  [y/n]: "
   read -r nvd
 fi
 
 # window manager and session
-clear; printf "\n  Install different WMs/DEs?  [y/n]: "
+$ASK "\n  Install different WMs/DEs?  [y/n]: "
 read -r desktop
 if ! [ "${desktop,,}" = "${no,,}" ]; then
-  clear; printf "\n  Window Managers and Desktop Environments (${b}defaults to Openbox${reg})\n
+  $ASK "\n  Window Managers and Desktop Environments (${b}defaults to Openbox${reg})\n
   1${red})${reg}Xfce  2${red})${reg}i3 gaps\n\n\n: "
   read -r wm
   if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
     if [[ $wm == *1* ]]; then
-      clear; printf "\n  Want Xfce to be your login session?  [y/n]: "
+      $ASK "\n  Want Xfce to be your login session?  [y/n]: "
       read -r xfses
     fi
     if [[ $wm == *2* ]]; then
       if ! [ "${xfses,,}" = "${yes,,}" ]; then
-        clear; printf "\n  Want i3 to be your login session?  [y/n]: "
+        $ASK "\n  Want i3 to be your login session?  [y/n]: "
         read -r i3ses
       fi
     fi
-    clear; printf "\n  ${red}Remove Openbox${reg}?  [y/n]: "
+    $ASK "\n  ${red}Remove Openbox${reg}?  [y/n]: "
     read -r rmob
   fi
 fi
@@ -218,237 +230,192 @@ fi
 ## Panel Switch
 # openbox wasnt removed
 if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  clear; printf "\n  Would you like the Tint2 Panel instead of Polybar?  [y/n]: "
+  $ASK "\n  Would you like to use Tint2?  [y/n]: "
   read -r panel
   if [ "${panel,,}" = "${yes,,}" ]; then
-    clear; printf "\n  Remove Polybar?  [y/n]: "
+    $ASK "\n  Remove Polybar?  [y/n]: "
     read -r rmpoly
   fi
-  clear; printf "\n  Docks (default is none)\n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
+  $ASK "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
   read -r dock
 else # using xfce and openbox was removed
   if [[ $wm == *1* ]]; then
-    clear; printf "\n  Docks (default is none)\n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
+    $ASK "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
     read -r dock
   fi
 fi
 
-clear; printf "\n  Choose Applications like browsers, office suites, video editors, etc?  [y/n]: "
+$ASK "\n  Select Applications to Install?  [y/n]: "
 read -r defaults
 
 if ! [ "${defaults,,}" = "${no,,}" ]; then
 
-  clear; printf "\n  Web Browsers (Firefox is default)\n
+  $ASK "\n  Web Browsers (Firefox is default)\n
   1${red})${reg}Chrome  2${red})${reg}Chromium  3${red})${reg}Opera\n\n\n: "
   read -r bwsr
   if [[ $bwsr == *1* ]] || [[ $bwsr == *2* ]] || [[ $bwsr == *3* ]]; then
     if [[ $bwsr == *1* ]] || [[ $bwsr == *2* ]]; then
-      clear; printf "\n  Install google-talk-plugin?  [y/n]: "
+      $ASK "\n  Install google talk plugin?  [y/n]: "
       read -r tlk
-
     fi
-
-    clear; printf "\n  Uninstall Firefox?  [y/n]: "
-    read -r remove
-
-    if ! [[ $bwsr == "1" ]] || [ "${remove,,}" = "${no,,}" ]; then
-      clear; printf "\n  Install flash plugin?  [y/n]: "
+    $ASK "\n  Uninstall Firefox?  [y/n]: "
+    read -r remove_firefox
+    if ! [[ $bwsr == "1" ]] || [ "${remove_firefox,,}" = "${no,,}" ]; then
+      $ASK "\n  Install flash plugin?  [y/n]: "
       read -r flsh
     fi
-
-    clear; echo -e "\n  ArchLabs provides a local homepage ${b}~/.ArchLabs-homepage/index.html${reg}
+    $SAY "\n  ArchLabs provides a local homepage ${b}~/.ArchLabs-homepage/index.html${reg}
   This can be opened with a browser and set as the homepage if you like\n\n\n"
     read -n1 -rsp $'  Press Any Key to continue...\n'
   else
-    clear; printf "\n  Install flash plugin?  [y/n]: "
+    $ASK "\n  Install flash plugin?  [y/n]: "
     read -r flsh
   fi
 
-  if ! [[ $wm == *1* ]]; then
-    clear; printf "\n  Text Editors (Geany is default)\n
-  1${red})${reg}Atom  2${red})${reg}Mousepad  3${red})${reg}Sublime\n\n\n: "
-    read -r edit
-    if [[ $edit == *1* ]] || [[ $edit == *2* ]] || [[ $edit == *3* ]]; then
-      clear; printf "\n  Uninstall Geany?  [y/n]: "
-      read -r redit
-    fi
 
+  if ! [[ $wm == *1* ]]; then
+    $ASK "\n  Text Editors (Geany is default)\n
+  1${red})${reg}Atom  2${red})${reg}Sublime  3${red})${reg}Mousepad\n\n\n: "
+    read -r edit
   else
-    clear; printf "\n  Text Editors (Geany is default)\n
+    $ASK "\n  Text Editors (Geany and Mousepad are default)\n
   1${red})${reg}Atom  2${red})${reg}Sublime\n\n\n: "
     read -r edit
-    if [[ $edit == *1* ]] || [[ $edit == *2* ]]; then
-      clear; printf "\n  Uninstall Geany?  [y/n]: "
-      read -r redit
-    fi
+  fi
+  if [[ $edit == *1* ]] || [[ $edit == *2* ]] || [[ $edit == *3* ]]; then
+    $ASK "\n  Uninstall Geany?  [y/n]: "
+    read -r redit
   fi
 
 
   if ! [[ $wm == *1* ]]; then
-    clear; printf "\n  Terminal Emulators (Termite is the default)\n
-  1${red})${reg}Xfce4 terminal  2${red})${reg}Terminator  3${red})${reg}Urxvt  4${red})${reg}Tilda  5${red})${reg}Tilix\n\n\n: "
+    $ASK "\n  Terminal Emulators (Termite is the default)\n
+  1${red})${reg}Tilix  2${red})${reg}Terminator  3${red})${reg}Urxvt  4${red})${reg}Tilda  5${red})${reg}Xfce4 terminal\n\n\n: "
     read -r term
-    if [[ $term == *3* ]]; then
-      clear; echo -e "\n  You can copy paste in urxvt with ${b}[Alt + c] [Alt + v]${reg}\n\n\n"
-      read -n1 -rsp $'  Press Any Key to continue...\n'
-    fi
   else
-    clear; printf "\n  Terminal Emulators (Termite is the default)\n
-  1${red})${reg}Terminator  2${red})${reg}Urxvt  3${red})${reg}Tilda  4${red})${reg}Tilix\n\n\n: "
+    $ASK "\n  Terminal Emulators (Termite is the default)\n
+  1${red})${reg}Tilix  2${red})${reg}Terminator  3${red})${reg}Urxvt  4${red})${reg}Tilda\n\n\n: "
     read -r term
-    if [[ $term == *2* ]]; then
-      clear; echo -e "\n  You can copy paste in urxvt with ${b}[Alt + c] [Alt + v]${reg}\n\n\n"
-      read -n1 -rsp $'  Press Any Key to continue...\n'
-    fi
+  fi
+  if [[ $term == *3* ]]; then
+    $SAY "\n  You can copy paste in urxvt with ${b}[Alt + c] [Alt + v]${reg}\n\n\n"
+    read -n1 -rsp $'  Press Any Key to continue...\n'
   fi
 
-  clear; printf "\n  Music Players (Audacious is the default)\n
+
+  $ASK "\n  Music Players (Audacious is the default)\n
   1${red})${reg}Spotify  2${red})${reg}Nicotine+  3${red})${reg}Lollypop  4${red})${reg}Rythmbox  5${red})${reg}Clementine\n\n\n: "
   read -r musc
   if [[ $musc == *3* ]] || [[ $musc == *4* ]] || [[ $musc == *5* ]]; then
-    clear; printf "\n  Uninstall Audacious?  [y/n]: "
+    $ASK "\n  Uninstall Audacious?  [y/n]: "
     read -r rmusc
   fi
 
-  clear; printf "\n  MPV is ArchLabs Default Video Player, install VLC instead? (120M) [y/n]: "
+  $ASK "\n  MPV is ArchLabs Default Video Player, install VLC instead? (120M) [y/n]: "
   read -r vlc
 
-  clear; printf "\n  Install additional Multimedia codecs?  [y/n]: "
-  read -r cod
-
   # if openbox wasnt removed and not using xfce we can change file manager
-  clear; printf "\n  File Managers (Thunar is default)\n
-  1${red})${reg}PCmanFM  2${red})${reg}Nautilus\n\n\n: "
+  $ASK "\n  File Managers (Thunar is default)\n
+  1${red})${reg}PCmanFM  2${red})${reg}Nautilus  3${red})${reg}Nemo\n\n\n: "
     read -r file
     if ! [[ $wm == *1* ]]; then
-      if [[ $file == *1* ]] || [[ $file == *2* ]]; then
-        clear; printf "\n  Uninstall Thunar?  [y/n]: "
+      if [[ $file == *1* ]] || [[ $file == *2* ]] || [[ $file == *3* ]]; then
+        $ASK "\n  Uninstall Thunar?  [y/n]: "
         read -r rmfile
       fi
     fi
 
-  clear; printf "\n  Screen Capture\n
+  $ASK "\n  Screen Capture\n
   1${red})${reg}SSR  2${red})${reg}OBS  2${red})${reg}Guvcview  4${red})${reg}Peek\n\n\n: "
   read -r cap
 
-  clear; printf "\n  Video Editors\n
+  $ASK "\n  Video Editors\n
   1${red})${reg}Kdenlive  2${red})${reg}Openshot  3${red})${reg}Lightworks\n\n\n: "
   read -r vid
 
-  clear; printf "\n  Image Editors\n
+  $ASK "\n  Image Editors\n
   1${red})${reg}Gimp  2${red})${reg}Inkscape  3${red})${reg}Krita  4${red})${reg}Pinta\n\n\n: "
   read -r img
 
-  clear; printf "\n  Office Suites\n
+  $ASK "\n  Office Suites\n
   1${red})${reg}Libre Office  2${red})${reg}Abiword  3${red})${reg}Caligra\n\n\n: "
   read -r off
 
-  clear; printf "\n  USB Burners\n
+  $ASK "\n  USB Burners\n
   1${red})${reg}Etcher  2${red})${reg}Mintstick  3${red})${reg}Unetbootin  4${red})${reg}Etcher-cli\n\n\n: "
   read -r usb
 
   if ! [[ $wm == *1* ]]; then
-    clear; printf "\n  Disc Burners\n
+    $ASK "\n  Disc Burners\n
   1${red})${reg}Xfburn  2${red})${reg}Simpleburn  3${red})${reg}K3b\n\n\n: "
     read -r brn
   fi
 
-  clear; printf "\n  Mail Clients\n
+  $ASK "\n  Mail Clients\n
   1${red})${reg}Thunderbird  2${red})${reg}Geary  3${red})${reg}Evolution  4${red})${reg}Mutt\n\n\n: "
   read -r mail
 
-  clear; printf "\n  Chat and IRC\n
+  $ASK "\n  Chat and IRC\n
   1${red})${reg}Hexchat  2${red})${reg}Pidgin  3${red})${reg}Weechat  4${red})${reg}Irssi\n\n\n: "
   read -r irc
 
-  clear; printf "\n  Torrent Clients\n
+  $ASK "\n  Torrent Clients\n
   1${red})${reg}Deluge  2${red})${reg}Transmission  3${red})${reg}qBittorrent\n\n\n: "
   read -r tor
 
-  clear; printf "\n  Color Selectors\n
+  $ASK "\n  Color Selector tools\n
   1${red})${reg}Gpick  2${red})${reg}Gcolor2\n\n\n: "
   read -r pick
 
-  clear; printf "\n  Want Steam installed?  [y/n]: "
-  read -r steam
-
-  clear; printf "\n  Want Dropbox installed?  [y/n]: "
-  read -r dbox
-
-fi
-# end of default app selection
-
-
-### tools
-clear; printf "\n  Select Additional Tools and Utilities?  [y/n]: "
-read -r tools
-if ! [ "${tools,,}" = "${no,,}" ]; then
-
-  #if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  #  clear; printf "\n  Do you want XFCE Polkit for gksu authentication?  [y/n]: "
-  #  read -r pol
-  #fi
-
-  clear; printf "\n  Install Samba plugin for Gvfs?  [y/n]: "
-  read -r smba
-
-  # if not using xfce we can pick a few xfce apps
-  if ! [[ $wm == *1* ]]; then
-    clear; printf "\n  Install XFCE notifications?  [y/n]: "
-    read -r notify
-
-    clear; printf "\n  Install XFCE Power Manager?  [y/n]: "
-    read -r pwr
-
-    clear; printf "\n  Install Pamac package manager? (the default is Pacli) [y/n]: "
-    read -r pac
-  fi
-
-  clear; printf "\n  Install Gnome Disk Utility & System Monitor?  [y/n]: "
-  read -r gnm
-
-  clear; printf "\n  Install Catfish File Search?  [y/n]: "
-  read -r sch
-fi
-
-
-# if openbox isnt removed we can install obmenu-generator and scripts
-if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  clear; printf "\n  Install Openbox Menu Generator and ArchLabs Switcher?  [y/n]: "
-  read -r obm
-fi
-
-# cosmetic selections
-clear; printf "\n  Select additional eyecandy options?  [y/n]: "
-read -r cosmetics
-if ! [ "${cosmetics,,}" = "${no,,}" ]; then
-
-  clear; printf "\n  Terminal Applications\n
+  $ASK "\n  Additional terminal applications\n
   1${red})${reg}Mpd & Ncmpcpp  2${red})${reg}Cava  3${red})${reg}S-tui\n\n\n: "
   read -r ter
 
-  clear; printf "\n  Install Conky?\n
-  1${red})${reg}conky  2${red})${reg}conky-lua  3${red})${reg}conky-lua-nv\n\n\n: "
-  read -r conk
-  if [[ $conk =~ ^[1-3]$ ]]; then
-    clear; printf "\n  Setup Archlabs conky chooser & pipemenu?  [y/n]: "
-    read -r alconk
+  # if not using xfce we can pick a few xfce apps
+  if ! [[ $wm == *1* ]]; then
+    $ASK "\n  XFCE notifications?  [y/n]: "
+    read -r notify
+
+    $ASK "\n  XFCE Power Manager?  [y/n]: "
+    read -r pwr
+
+    $ASK "\n  Pamac package manager? (default is Pacli) [y/n]: "
+    read -r pac
   fi
 
-  clear; printf "\n  Install some of our favorite additional fonts?  [y/n]: "
+  $ASK "\n  Gnome Disk Utility & System Monitor  [y/n]: "
+  read -r gnm
+
+  $ASK "\n  Catfish File Search  [y/n]: "
+  read -r sch
+
+  $ASK "\n  Steam  [y/n]: "
+  read -r steam
+
+  $ASK "\n  Dropbox  [y/n]: "
+  read -r dbox
+
+  $ASK "\n  A few of our favorite fonts?  [y/n]: "
   read -r fnt
 
-  clear; printf "\n  Install nerdfonts-complete for icon patched fonts? (260M) [y/n]: "
-  read -r nfnt
+  if ! [ "${rmpoly,,}" = "${yes,,}" ]; then
+    $ASK "\n  Additional icon patched fonts for polybar? (260M) [y/n]: "
+    read -r nfnt
+  fi
 
-  clear; printf "\n  Install visual improvements for Qt Applications?  [y/n]: "
-  read -r qt
-
-  clear; printf "\n  Install oomox for making GTK themes?  [y/n]: "
+  $ASK "\n  Install oomox for making GTK themes?  [y/n]: "
   read -r omox
 fi
+# end of default app selection
 
-clear; echo -e "#######################################################################################
+# if openbox isnt removed we can install obmenu-generator and scripts
+if ! [ "${rmob,,}" = "${yes,,}" ]; then
+  $ASK "\n  Install Openbox Menu Generator and ArchLabs Switcher?  [y/n]: "
+  read -r obm
+fi
+
+
+$SAY "#######################################################################################
 #######                           Starting Install                              #######
 #######################################################################################"
 sleep 1; clear
@@ -459,11 +426,16 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
 
   # switch panel
   if [ "${panel,,}" = "${yes,,}" ]; then
-    sudo pacman -S tint2 volumeicon network-manager-applet --noconfirm --needed
-    mv -f $TINT_MENU $MENU
-    sed -i '/polybar/d' $AUTOSTART
-    if ! (grep "tint2" $AUTOSTART); then
-      echo "sleep 1; tint2 &" >> $AUTOSTART
+    sudo pacman -S volumeicon network-manager-applet --noconfirm --needed
+    if [ -e $CONF_PATH/polybar/scripts/launch.sh ]; then
+      sed -i '/openbox-bar/ c\
+#  polybar -r --config=$CONF_PATH/config openbox-bar &' $CONF_PATH/polybar/scripts/launch.sh
+    fi
+    if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile); then
+      echo "/home/$USER/.config/tint2/default.tint2rc" >> $CONF_PATH/tint2/tint2-sessionfile
+    fi
+    if ! (grep "al-tint2-session" $AUTOSTART); then
+      echo "al-tint2-session &" >> $AUTOSTART
     fi
     if ! (grep "volumeicon" $AUTOSTART); then
       echo "sleep 2; volumeicon &" >> $AUTOSTART
@@ -471,13 +443,7 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
     if ! (grep "nm-applet" $AUTOSTART); then
       echo "sleep 2; nm-applet &" >> $AUTOSTART
     fi
-    if [ "${rmpoly,,}" = "${yes,,}" ]; then
-      sudo pacman -Rns polybar-git --noconfirm
-      rm -rf $CONF_PATH/polybar
-    fi
-  else # if tint2 wasnt picked then clean up ~/.config
-    rm -rf $CONF_PATH/tint2
-    rm -f $TINT_MENU
+    al-tint2-session &
   fi
 
   # menu switcher  (MUST be done after tint2 was picked or not)
@@ -494,9 +460,6 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
     if [ -e $CONF_PATH/obmenu-generator/schema.pl ]; then
       if ! [ "${panel,,}" = "${yes,,}" ]; then
         sed -i '/Tint2 GUI/d' $CONF_PATH/obmenu-generator/schema.pl
-      fi
-      if [ "${alconk,,}" = "${no,,}" ]; then
-        sed -i '/al-conky-pipemenu/d' $CONF_PATH/obmenu-generator/schema.pl
       fi
     fi
   else
@@ -551,7 +514,7 @@ if ! [ "${defaults,,}" = "${no,,}" ]; then
 
     if [ "${remove,,}" = "${yes,,}" ]; then
       sudo pacman -Rn firefox --noconfirm
-      rm -rf /home/$USER/.mozilla
+      rm -rf $HOME/.mozilla
       if [[ $bwsr == *1* ]]; then
         echo '[Desktop Entry]
 NoDisplay=true
@@ -562,7 +525,7 @@ X-XFCE-Category=WebBrowser
 X-XFCE-CommandsWithParameter=google-chrome-stable "%s"
 Icon=google-chrome
 Name=Google Chrome
-X-XFCE-Commands=google-chrome-stable' > /home/$USER/.local/share/xfce4/helpers/custom-WebBrowser.desktop
+X-XFCE-Commands=google-chrome-stable' > $HOME/.local/share/xfce4/helpers/custom-WebBrowser.desktop
         sed -i 's/firefox/custom-WebBrowser/g' $HELPERS $CONF_PATH/xfce4/al-xfce-configs/helpers.rc
       fi
       if [[ $bwsr == *2* ]]; then
@@ -581,124 +544,93 @@ X-XFCE-Commands=google-chrome-stable' > /home/$USER/.local/share/xfce4/helpers/c
 
   # editors
   if [[ $edit == *1* ]] || [[ $edit == *2* ]] || [[ $edit == *3* ]]; then
-    if ! [[ $wm == *1* ]]; then
-      if [[ $edit == *1* ]]; then
-        sudo pacman -S atom --noconfirm --needed
-        sed -i 's/geany/atom/g' $MIMEAPP $MENU $RC_PATH
-        sudo sed -i 's/TEXT_EDITOR="geany"/TEXT_EDITOR="atom"/g' /usr/bin/al-open
-        if [ "${redit,,}" = "${yes,,}" ]; then
-          sudo sed -i 's/geany/atom/g' /usr/bin/al-compositor
-        fi
-      fi
-      if [[ $edit == *2* ]]; then
+    if [[ $edit == *1* ]]; then
+      sudo pacman -S atom --noconfirm --needed
+      sed -i 's/geany/atom/g' $MIMEAPP $MENU $RC_PATH
+      sudo sed -i 's/TEXT_EDITOR="geany"/TEXT_EDITOR="atom"/g' /usr/bin/al-open
+    fi
+    if [[ $edit == *2* ]]; then
+      yaourt -S sublime-text-dev --noconfirm --needed
+      sed -i 's/geany/sublime_text_3/g' $MIMEAPP
+      sed -i 's/geany/subl3/g' $RC_PATH $MENU
+      sudo sed -i 's/TEXT_EDITOR="geany"/TEXT_EDITOR="subl3"/g' /usr/bin/al-open
+    fi
+    if [[ $edit == *3* ]]; then
+      if ! [[ $wm == *1* ]]; then
         sudo pacman -S mousepad --noconfirm --needed
         sed -i 's/geany/mousepad/g' $MIMEAPP $MENU $RC_PATH
         sudo sed -i 's/TEXT_EDITOR="geany"/TEXT_EDITOR="mousepad"/g' /usr/bin/al-open
-        if [ "${redit,,}" = "${yes,,}" ]; then
-          sudo sed -i 's/geany/mousepad/g' /usr/bin/al-compositor
-        fi
-      fi
-      if [[ $edit == *3* ]]; then
-        yaourt -S sublime-text-dev --noconfirm --needed
-        sed -i 's/geany/sublime_text_3/g' $MIMEAPP
-        sed -i 's/geany/subl3/g' $RC_PATH $MENU
-        sudo sed -i 's/TEXT_EDITOR="geany"/TEXT_EDITOR="subl3"/g' /usr/bin/al-open
-        if [ "${redit,,}" = "${yes,,}" ]; then
-          sudo sed -i 's/geany/subl3/g' /usr/bin/al-compositor
-        fi
-      fi
-    else
-      sed -i 's/geany/mousepad/g' $MIMEAPP
-      if [[ $edit == *1* ]]; then
-        sudo pacman -S atom --noconfirm --needed
-        sed -i 's/mousepad/atom/g' $MIMEAPP
-      fi
-      if [[ $edit == *2* ]]; then
-        yaourt -S sublime-text-dev --noconfirm --needed
-        sed -i 's/mousepad/sublime_text_3/g' $MIMEAPP
       fi
     fi
+
     if [ "${redit,,}" = "${yes,,}" ]; then
       sudo pacman -Rn geany --noconfirm
       rm -rf $CONF_PATH/geany
     fi
   fi
 
+
   # terminal emulators
   if [[ $term == *1* ]] || [[ $term == *2* ]] || [[ $term == *3* ]] || [[ $term == *4* ]] || [[ $term == *5* ]]; then
+    if [[ $term == *1* ]]; then
+      yaourt -S tilix --noconfirm --needed
+      sed -i 's/Termite/Tilix/g' $HOME/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
+      sed -i 's/termite/tilix/g' $HOME/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
+    fi
+    if [[ $term == *2* ]]; then
+      sudo pacman -S terminator --noconfirm --needed
+      sed -i 's/custom-TerminalEmulator/terminator/g' $HELPERS
+    fi
+    if [[ $term == *3* ]]; then
+      sudo pacman -S rxvt-unicode urxvt-perls xclip --noconfirm --needed
+      sed -i 's/custom-TerminalEmulator/urxvt/g' $HELPERS
+      if ! grep "xclip" $AUTOSTART; then
+        echo 'sleep 3; xclip &' >> $AUTOSTART
+      fi
+    fi
+    if [[ $term == *4* ]]; then
+      sudo pacman -S tilda --noconfirm --needed
+      sed -i 's/Termite/Tilda/g' $HOME/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
+      sed -i 's/termite/tilda/g' $HOME/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
+    fi
     if ! [[ $wm == *1* ]]; then
-      if [[ $term == *1* ]]; then
+      if [[ $term == *5* ]]; then
         sudo pacman -S xfce4-terminal --noconfirm --needed
         sed -i 's/custom-TerminalEmulator/xfce4-terminal/g' $HELPERS
-      fi
-      if [[ $term == *2* ]]; then
-        sudo pacman -S terminator --noconfirm --needed
-        sed -i 's/custom-TerminalEmulator/terminator/g' $HELPERS
-      fi
-      if [[ $term == *3* ]]; then
-        sudo pacman -S rxvt-unicode urxvt-perls xclip --noconfirm --needed
-        sed -i 's/custom-TerminalEmulator/urxvt/g' $HELPERS
-        if ! grep "xclip" $AUTOSTART; then
-          echo 'sleep 3; xclip &' >> $AUTOSTART
-        fi
-      fi
-      if [[ $term == *4* ]]; then
-        sudo pacman -S tilda --noconfirm --needed
-        sed -i 's/Termite/Tilda/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-        sed -i 's/termite/tilda/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-      fi
-      if [[ $term == *5* ]]; then
-        yaourt -S tilix --noconfirm --needed
-        sed -i 's/Termite/Tilix/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-        sed -i 's/termite/tilix/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-      fi
-    else
-      if [[ $term == *1* ]]; then
-        sudo pacman -S terminator --noconfirm --needed
-        sed -i 's/custom-TerminalEmulator/terminator/g' $HELPERS
-      fi
-      if [[ $term == *2* ]]; then
-        sudo pacman -S rxvt-unicode urxvt-perls xclip --noconfirm --needed
-        sed -i 's/custom-TerminalEmulator/urxvt/g' $HELPERS
-        if ! grep "xclip" $AUTOSTART; then
-          echo 'sleep 3; xclip &' >> $AUTOSTART
-        fi
-      fi
-      if [[ $term == *3* ]]; then
-        sudo pacman -S tilda --noconfirm --needed
-        sed -i 's/Termite/Tilda/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-        sed -i 's/termite/tilda/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-      fi
-      if [[ $term == *4* ]]; then
-        yaourt -S tilix --noconfirm --needed
-        sed -i 's/Termite/Tilix/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
-        sed -i 's/termite/tilix/g' /home/$USER/.local/share/xfce4/helpers/custom-TerminalEmulator.desktop
       fi
     fi
   fi
 
+
   # file manager
-  if [[ $file == *1* ]] || [[ $file == *2* ]]; then
+  if [[ $file == *1* ]] || [[ $file == *2* ]] || [[ $file == *3* ]]; then
     if [[ $file == *1* ]]; then
       sudo pacman -S pcmanfm --noconfirm --needed
+      sed -i 's/thunar --daemon/pcmanfm -d/g' $AUTOSTART
+      sed -i 's/Thunar-folder-handler/pcmanfm/g' $MIMEAPP
+      sed -i 's/Thunar/pcmanfm/g' $HELPERS
+      sed -i 's/thunar/pcmanfm/g' $MENU
     fi
     if [[ $file == *2* ]]; then
       sudo pacman -S nautilus nautilus-open-terminal nautilus-terminal --noconfirm --needed
+      sed -i '/thunar/d' $AUTOSTART
+      sed -i 's/Thunar-folder-handler/org.gnome.Nautilus/g' $MIMEAPP
+      sed -i 's/Thunar/nautilus/g' $HELPERS
+      sed -i 's/thunar/nautilus/g' $MENU
+    fi
+    if [[ $file == *3* ]]; then
+      sudo pacman -S nemo nemo-fileroller nemo-preview nemo-share --noconfirm --needed
+      gsettings set org.nemo.desktop show-desktop-icons false
+      gsettings set org.cinnamon.desktop.default-applications.terminal exec termite
+      sed -i '/thunar/d' $AUTOSTART
+      sed -i 's/Thunar-folder-handler/org.gnome.Nautilus/g' $MIMEAPP
+      sed -i 's/Thunar/nemo/g' $HELPERS
+      sed -i 's/thunar/nemo/g' $MENU
     fi
     if ! [[ $wm == *1* ]]; then
       if [ "${rmfile,,}" = "${yes,,}" ]; then
         sudo pacman -Rn thunar --noconfirm
         rm -rf $CONF_PATH/Thunar
-        if [[ $file == *1* ]]; then
-          sed -i 's/thunar --daemon/pcmanfm -d/g' $AUTOSTART
-          sed -i 's/Thunar-folder-handler/pcmanfm/g' $MIMEAPP
-          sed -i 's/Thunar/pcmanfm/g' $HELPERS
-        fi
-        if [[ $file == *2* ]]; then
-          sed -i '/thunar/d' $AUTOSTART
-          sed -i 's/Thunar-folder-handler/org.gnome.Nautilus/g' $MIMEAPP
-          sed -i 's/Thunar/nautilus/g' $HELPERS
-        fi
       fi
     fi
   fi
@@ -737,25 +669,21 @@ X-XFCE-Commands=google-chrome-stable' > /home/$USER/.local/share/xfce4/helpers/c
 
     # pamac & polkit
     if [ "${pac,,}" = "${yes,,}" ]; then
-      sudo pacman -S gcc fakeroot make automake autoconf pkg-config --noconfirm --needed
+      sudo pacman -S fakeroot make pkg-config --noconfirm --needed
       yaourt -S pamac-aur xfce-polkit --noconfirm --needed
       if ! (grep "pamac-tray" $AUTOSTART); then
         echo  "sleep 2; pamac-tray &" >> $AUTOSTART
       fi
       if [[ $wm == *2* ]]; then
-        if [ "${pol,,}" = "${yes,,}" ]; then
-          echo "polkit already setup"
-        else
-          if (grep "xfce-polkit" $CONF_PATH/i3/config); then
-            sed -i '/xfce-polkit/ c\
+        if (grep "xfce-polkit" $CONF_PATH/i3/config); then
+          sed -i '/xfce-polkit/ c\
 exec --no-startup-id \/usr\/lib\/xfce-polkit\/xfce-polkit' $CONF_PATH/i3/config
-          else
-            echo "exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit" >> $CONF_PATH/i3/config
-          fi
+        else
+          echo "exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit" >> $CONF_PATH/i3/config
         fi
       fi
       if (grep "pacli" $MENU); then
-        sed -i 's/termite --geometry=750x550 --exec=pacli/pamac-manager/g' $MENU
+        sed -i 's/termite --exec=pacli/pamac-manager/g' $MENU
       fi
       if [ -e $CONF_PATH/polybar/modules.conf ]; then
         sed -i 's/termite --exec=pacli/pamac-manager/g' $CONF_PATH/polybar/modules.conf
@@ -819,13 +747,11 @@ exec --no-startup-id \/usr\/lib\/xfce-polkit\/xfce-polkit' $CONF_PATH/i3/config
     sudo pacman -S vlc qt4 --noconfirm --needed
     sudo pacman -Rn mpv --noconfirm
     sed -i 's/mpv --player-operation-mode=pseudo-gui/vlc/g' $MENU
-  fi
-
-  # extra codecs
-  if [ "${cod,,}" = "${yes,,}" ]; then
+  else
     sudo pacman -S a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 --noconfirm --needed
     sudo pacman -S libtheora libvorbis libxv wavpack x264 libdvdcss dvd+rw-tools dvdauthor dvgrab --needed --noconfirm
   fi
+
 
   # image editor
   if [[ $img == *1* ]] || [[ $img == *2* ]] || [[ $img == *3* ]] || [[ $img == *4* ]]; then
@@ -867,12 +793,11 @@ exec --no-startup-id \/usr\/lib\/xfce-polkit\/xfce-polkit' $CONF_PATH/i3/config
       if ! (grep "QT_QPA_PLATFORMTHEME" $CONF_PATH/openbox/environment); then
         echo "QT_QPA_PLATFORMTHEME=qt5ct" >> $CONF_PATH/openbox/environment
       fi
-      if ! (grep "QT_STYLE_OVERRIDE" /home/$USER/.xsessionrc); then
-        echo "export QT_STYLE_OVERRIDE=GTK+" >> /home/$USER/.xsessionrc
+      if ! (grep "QT_STYLE_OVERRIDE" $HOME/.xsessionrc); then
+        echo "export QT_STYLE_OVERRIDE=GTK+" >> $HOME/.xsessionrc
       fi
       mkdir -p $CONF_PATH/qt5ct
-      if ! [ -e $CONF_PATH/qt5ct/qt5ct.conf ]; then
-        echo "[Appearance]
+      echo "[Appearance]
 color_scheme_path=
 custom_palette=false
 icon_theme=breeze
@@ -889,7 +814,6 @@ menus_have_icons=true
 stylesheets=@Invalid()
 toolbutton_style=4
 wheel_scroll_lines=3" > $CONF_PATH/qt5ct/qt5ct.conf
-      fi
     fi
     if [[ $vid == *2* ]]; then
       sudo pacman -S openshot --noconfirm --needed
@@ -974,12 +898,6 @@ wheel_scroll_lines=3" > $CONF_PATH/qt5ct/qt5ct.conf
     fi
   fi
 
-  # End default app install
-fi
-
-
-if ! [ "${cosmetics,,}" = "${no,,}" ]; then
-
   # terminal apps
   if [[ $ter == *1* ]] || [[ $ter == *2* ]] || [[ $ter == *3* ]]; then
     if [[ $ter == *1* ]]; then
@@ -1008,100 +926,19 @@ if ! [ "${cosmetics,,}" = "${no,,}" ]; then
     yaourt -S nerd-fonts-complete --noconfirm --needed
   fi
 
-  # conky
-  if [[ $conk == *1* ]] || [[ $conk == *2* ]] || [[ $conk == *3* ]]; then
-    if [[ $conk == *1* ]]; then
-      sudo pacman -S conky --noconfirm --needed
-    elif [[ $conk == *2* ]]; then
-      yaourt -S  conky-lua --noconfirm --needed
-    else
-      yaourt -S conky-lua-nv --noconfirm --needed
-    fi
-
-    if [[ $dock == *1* ]] || [[ $dock == *2* ]] || [[ $dock == *3* ]]; then
-      sed -i '/$(wmctrl/ c\
-exec = echo "$(($(wmctrl -l -i | wc -l)-3))"' $CONF_PATH/polybar/modules.conf
-    else
-      sed -i '/$(wmctrl/ c\
-exec = echo "$(($(wmctrl -l -i | wc -l)-2))"' $CONF_PATH/polybar/modules.conf
-    fi
-
-    if ! [ "${alconk,,}" = "${no,,}" ]; then
-      sudo pacman -S zenity webkit2gtk python2-lxml --noconfirm --needed
-      if ! (grep "conky" $MENU); then
-        sed -i '/al-compositor/ i\
-        <menu execute="al-conky-pipemenu" id="ConkyPipeMenu" label="Conky"/>' $MENU
-      fi
-      if ! (grep "conky" $AUTOSTART); then
-        echo "sleep 2; al-conky-session --autostart &" >> $AUTOSTART
-      fi
-      if [[ $wm == *1* ]]; then
-        if ! [ -e /etc/xdg/autostart/ArchLabs-Conky-Session.desktop ]; then
-          echo '[Desktop Entry]
-Version=1.0
-Name=ArchLabs Conky Session
-Exec=al-conky-session --autostart
-Terminal=false
-Type=Application
-Categories=Utility;
-StartupNotify=false
-X-GNOME-Autostart-enabled=true' | sudo tee -a /etc/xdg/autostart/ArchLabs-Conky-Session.desktop
-        fi
-      fi
-    else
-      if ! (grep "conky" $AUTOSTART); then
-        echo "sleep 2; conky -c ~/.config/conky/Minimo.conkyrc &" >> $AUTOSTART
-      fi
-    fi
-  else
-    rm -rf $CONF_PATH/conky
+  # catfish
+  if [ "${sch,,}" = "${yes,,}" ]; then
+    sudo pacman -S catfish --noconfirm --needed
   fi
 
-  # qt app support
-  if [ "${qt,,}" = "${yes,,}" ]; then
-    sudo pacman -S qt5-base qt5ct qt5-styleplugins --noconfirm --needed
-    if ! (grep "QT_QPA_PLATFORMTHEME" $CONF_PATH/openbox/environment); then
-      echo "QT_QPA_PLATFORMTHEME=qt5ct" >> $CONF_PATH/openbox/environment
-    fi
-    if ! (grep "QT_STYLE_OVERRIDE" /home/$USER/.xsessionrc); then
-      echo "export QT_STYLE_OVERRIDE=GTK+" >> /home/$USER/.xsessionrc
-    fi
-    mkdir -p $CONF_PATH/qt5ct
-    if ! [ -e $CONF_PATH/qt5ct/qt5ct.conf ]; then
-      echo "[Appearance]
-color_scheme_path=
-custom_palette=false
-icon_theme=ArchLabs-Dark
-style=gtk2
-
-[Interface]
-activate_item_on_single_click=1
-buttonbox_layout=0
-cursor_flash_time=1000
-dialog_buttons_have_icons=0
-double_click_interval=400
-gui_effects=General
-menus_have_icons=true
-stylesheets=@Invalid()
-toolbutton_style=4
-wheel_scroll_lines=3" > $CONF_PATH/qt5ct/qt5ct.conf
-    fi
+  if [ "${gnm,,}" = "${yes,,}" ]; then
+    sudo pacman -S gnome-disk-utility gnome-system-monitor --noconfirm --needed
   fi
+
+  # End default app install
 fi
 
-# samba server
-if [ "${smba,,}" = "${yes,,}" ]; then
-  sudo pacman -S gvfs-smb --noconfirm --needed
-fi
 
-# catfish
-if [ "${sch,,}" = "${yes,,}" ]; then
-  sudo pacman -S catfish --noconfirm --needed
-fi
-
-if [ "${gnm,,}" = "${yes,,}" ]; then
-  sudo pacman -S gnome-disk-utility gnome-system-monitor --noconfirm --needed
-fi
 
 
 # window manager and session
@@ -1110,7 +947,7 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
     sudo pacman -S xfce4 xfce4-goodies volumeicon network-manager-applet xfce4-pulseaudio-plugin --noconfirm --needed
     yaourt -S pamac-aur --noconfirm --needed
     if [ -d $CONF_PATH/xfce4/al-xfce-configs ]; then
-      mv -f $CONF_PATH/xfce4/al-xfce-configs/.gtkrc-2.0 /home/$USER/.gtkrc-2.0
+      mv -f $CONF_PATH/xfce4/al-xfce-configs/.gtkrc-2.0 $HOME/.gtkrc-2.0
       cp -r $CONF_PATH/xfce4/al-xfce-configs/* $CONF_PATH/xfce4/
       rm -rf $CONF_PATH/xfce4/al-xfce-configs
     fi
@@ -1122,12 +959,8 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
   fi
 
   if [ "${rmob,,}" = "${yes,,}" ]; then
-    sudo pacman -Rn openbox oblogout obconf --noconfirm
-    sudo rm -f $BIN/{exit-openbox,kickshaw,*pipemenu,opensnap,ob-autostart}
+    sudo pacman -Rn openbox oblogout obconf lxappearance-obconf --noconfirm
     rm -rf $CONF_PATH/{openbox,tint2}
-    if ! [[ $wm == *1* ]]; then
-      sudo rm -f /etc/oblogout.conf
-    fi
   fi
 
   if [ "${xfses,,}" = "${yes,,}" ]; then
@@ -1144,10 +977,9 @@ autologin-session=i3' /etc/lightdm/lightdm.conf
   else
     echo "Session not changed"
   fi
-else
-  rm -rf $CONF_PATH/i3
-  rm -rf $CONF_PATH/xfce4/al-xfce-configs
 fi
+
+
 
 # Swapfile setup
 if [ "${swp,,}" = "${yes,,}" ]; then
@@ -1160,19 +992,15 @@ if [ "${swp,,}" = "${yes,,}" ]; then
         sudo swapon /swapfile
         echo -e "\n  Appending to /ect/fstab\n"
         echo "/swapfile                                 none           swap    defaults 0 0" | sudo tee -a /etc/fstab
-
       else
-        clear; echo -e "\n  Wrong formatting"
-
+        $SAY "\n  Wrong formatting"
       fi
     else
-      clear; echo -e "\n  No size entered"
-
+      $SAY "\n  No size entered"
     fi
   else
     # Create a string of the users total M + 50M
     totalM=$(free --mega | awk '/^Mem:/{print $2}') ; totalM=$(($totalM + 50)) ; totalM="${totalM}M"
-
     sudo fallocate -l $totalM /swapfile
     sudo chmod 600 /swapfile
     sudo mkswap /swapfile
@@ -1180,7 +1008,6 @@ if [ "${swp,,}" = "${yes,,}" ]; then
     echo -e "\n  Appending to /ect/fstab\n"
     echo "/swapfile                                 none           swap    defaults 0 0" | sudo tee -a /etc/fstab
     sleep 1
-
   fi
 fi
 
@@ -1213,17 +1040,12 @@ if [[ $dock == *1* ]] || [[ $dock == *2* ]] || [[ $dock == *3* ]]; then
       fi
     fi
   fi
-
-  if [ -e $CONF_PATH/polybar/modules.conf ]; then
-    sed -i '/$(wmctrl/ c\
-exec = echo "$(($(wmctrl -l -i | wc -l)-2))"' $CONF_PATH/polybar/modules.conf
-  fi
 fi
 
 
 # nvidia drivers
 if [ "${nvd,,}" = "${yes,,}" ]; then
-  clear; echo -e "\n${g}  Next boot you will be promted with Nvidia Driver Installation${reg}"
+  $SAY "\n${g}  Next boot you will be promted with Nvidia Driver Installation${reg}"
   sleep 2
   if [[ $wm == *2* ]] && [ "${i3ses,,}" = "${yes,,}" ]; then # if we are logging in to i3 we need to set it up is autostart
     if ! (grep "nvidia-easy-install" $CONF_PATH/i3/config); then

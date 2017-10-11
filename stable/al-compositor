@@ -23,7 +23,7 @@ HELP='    al-compositor an Openbox Pipe Menu for use with compton compositor
 Options (usually passed from the menu):
     -h --help   show this message
     --start     start the compositor and restart tint2, if running
-    --restart   restart the compositor, if running, and restart tint2
+    --restart   restart the compositor, if running
     --stop      stop the compositor
     --edit      open the compton config file in a text editor
     --watch     restart the compositor whenever the config file is modified
@@ -58,9 +58,6 @@ declareDependencies compton
 
 # ------------- Set compton command options -----------------------------------
 EXECXCOMP='compton -b'
-if glxinfo | egrep -iq 'direct rendering: yes'; then
-    EXECXCOMP+=' --vsync opengl'
-fi
 
 forcekill_compton() {
     killall -q compton
@@ -83,21 +80,29 @@ if [[ $1 = '--edit' ]]; then # Edit compton settings
     exo-open "$HOME/.config/compton.conf"
 
 elif [[ $1 = '--start' ]]; then
+  if [ -e $HOME/.config/.composite_enabled ]; then
     if ! pidof compton > /dev/null; then
         $EXECXCOMP
         # al-tint2restart || true
     else
         echo "$0 --start: compton already running" >&2
     fi
+  else
+    echo "Compositing is not enabled"
+  fi
 elif [[ $1 = '--stop' ]]; then
     forcekill_compton
 elif [[ $1 = '--restart' ]]; then
+  if [ -e $HOME/.config/.composite_enabled ]; then
     if pidof compton > /dev/null; then
         forcekill_compton
         "$0" --start
     else # nothing to restart
         echo "$0 --restart: compton is not running" >&2
     fi
+  else
+    echo "Compositing is not enabled"
+  fi
 elif [[ $1 = '--watch' ]]; then
     while inotifywait -e close_write "$HOME/.config/compton.conf"; do
         "$0" --restart

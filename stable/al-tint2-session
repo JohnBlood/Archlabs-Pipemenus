@@ -31,7 +31,7 @@ USAGE=$(
     echo -e "\tTint2 session file \"$TINT2PATH/tint2-sessionfile\","
     echo -e "\tif it exists, otherwise the default tint2rc is used"
     echo -e "\v\tTo start them at login, add the following line to autostart:"
-    echo -e "\v\t\al-tint2-session"
+    echo -e "\v\tal-tint2-session"
 )
 
 findArgs(){     # get command args
@@ -75,8 +75,5 @@ if [ $# -eq 0 ];then    # if no args, then run default sessionfile
 else
     findArgs "$@"
 fi
-
-# restart compositor in case of rendering problems
-#al-compositor --restart
 
 exit 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #    al-tint2-pipemenu - an Openbox pipemenu for tint2 manipulation
-#    Copyright (C) 2015-2016 damo    
+#    Copyright (C) 2015-2016 damo
 #    Borrowed with love by the ArchLabs boys.
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -41,20 +41,20 @@ do
     esac
 done
 
-BL_COMMON_LIBDIR='/usr/lib/archlabs/common'
+AL_COMMON_LIBDIR='/usr/lib/archlabs/common'
 
 TINT2PATH="$HOME/.config/tint2"
 TINT2RC="$TINT2PATH/tint2rc"
 TZEN="al-tint2zen"
 
-if ! . "$BL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
+if ! . "$AL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
     echo $"Error: Failed to source al-include.cfg in $AL_COMMON_LIBDIR" >&2
     exit 1
 fi
 
 loadTEditmenu(){
     menuSeparator
-    menuItem "Default tint2rc" "geany $TINT2RC"
+    menuItem "Default tint2rc" "exo-open $TINT2RC"
     if [ "$(pidof tint2)" ];then
         menuSubmenu "RunningTint2" "Running Tint2s"
         pgrep -a tint2 | while read -r pid cmd; do
@@ -65,7 +65,7 @@ loadTEditmenu(){
                     TINT="$TINT2RC"
                     TINT2="Default tint2rc"
                 fi
-                menuItem "$TINT2" "geany $TINT"
+                menuItem "$TINT2" "exo-open $TINT"
             fi
         done
         menuSubmenuEnd
@@ -83,11 +83,11 @@ getTint2s(){
     menuSubmenuEnd
 }
 
-#loadChoosermenu(){
-    #if type $TZEN &>/dev/null;then  # al-tint2zen script found
-        #menuItem "Tint2 Chooser" "$TZEN"
-    #fi
-#}
+loadChoosermenu(){
+    if type $TZEN &>/dev/null;then  # al-tint2zen script found
+        menuItem "Tint2 Chooser" "$TZEN"
+    fi
+}
 
 loadRestartmenu(){
     if [ "$(pidof tint2)" ];then
@@ -98,6 +98,7 @@ loadRestartmenu(){
 }
 
 menuStart "Tintmenu" "Tint2"
+menuItem "Tint2 GUI" "tint2conf"
 loadChoosermenu
 loadRestartmenu
 getTint2s

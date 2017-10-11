@@ -35,7 +35,7 @@
 CONKYPATH="$HOME/.config/conky"
 SESSIONFILE="$CONKYPATH/conky-sessionfile"
 SESSIONS="$CONKYPATH/saved-sessions"    # to be used by a pipemenu
-CRC="$HOME/.conkyrc"
+CRC="$CONKYPATH/ArchLabs.conkyrc"
 ALDEFAULT="$CONKYPATH/AL-Default.conkyrc"
 
 USAGE1="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
@@ -63,6 +63,7 @@ USAGE2="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
 ### DIALOG VARIABLES
 DLG="zenity --info"
 DLGDEC="zenity"
+QUESTION="zenity --question --window-icon=distributor-logo-archlabs"
 TITLE="ArchLabs Conky Manager"
 WINICON="--window-icon=distributor-logo-archlabs"
 OK="--ok-label=Ok"
@@ -118,15 +119,14 @@ fillArrays(){
 findConky(){
 # search dirs for conkys files - looking for "conky" in the name
 # if "*conky(rc)" then display it
-    num=0   # added default .conkyrc
-    fillArrays $num "$CRC" "$USER/.conkyrc"
     num=1
+    fillArrays $num "$CRC" "$USER/.conkyrc"
     # find files in CONKYPATH with conky in the name
     for x in $(find "$CONKYPATH" -type f );do
         f=$(basename "$x")    # filename from filepath
         if [[ $f = *conkyrc ]] || [[ $f = *conky ]];then    # filename ends with *conky or *conkyrc
             # get directory/conkyname to display in list
-            CONKY=$( echo "$x" | awk -F"/" '{print $(NF-1)"/"$NF}')
+            CONKY=$( echo "$x" | awk -F"/" '{print $NF}')
             fillArrays $num "$x" "$CONKY"
             num=$(($num+1))
         fi
@@ -141,7 +141,7 @@ writeSessions(){    # save a new sessionfile name for use by a menu
     fi
     if grep -qx "$SESSIONFILE" "$SESSIONS";then # session was previously saved
         if [[ $2 = "-z" ]];then    # input was from input dialog, so ask OK?
-            $DLG $WINICON --title="Conky sessionfile" --text="Filename already in use\n\nOverwrite it?" $CANCEL $OK
+            $QUESTION --title="Conky sessionfile" --width=250 --height=100 --text="Filename already in use\n\nOverwrite it?" $CANCEL $OK
             if (( $? == 1 ));then
                 exit 0
             fi
@@ -181,15 +181,15 @@ for arg in "$@";do
                         exit 1
                       fi
                       ;;
-        -z          ) SPATH=$($DLGDEC $WINICON --entry \
+        -z          ) SPATH=$($DLGDEC $WINICON --entry --width=350 --height=200 \
                         --title="Save Conky sessionfile" \
-                        --entry-text="New saved session file:" \
-                        --text="File to be saved in <b>$CONKYPATH/</b>\n\n" \
+                        --entry-text="New session file name" \
+                        --text="File to be saved in \n\n\n$CONKYPATH/\n\n" \
                         $OK $CANCEL \
                         )
                       (( $? == 1 )) && exit 0
                       if [[ -z $SPATH ]];then     # entry was empty
-                          $DLG $WINICON --title="Conky sessionfile" --text="No file specified for new saved session\n\nExiting..." $OK
+                          $DLG $WINICON --title="Conky sessionfile" --width=250 --height=100 --text="No file specified for new saved session\n\nExiting..." $OK
                           exit 1
                       else
                           writeSessions "$SPATH" "-z"   # saved session file from input dialog
@@ -206,7 +206,7 @@ for arg in "$@";do
     esac
 done
 
-# test for ~/.conkyrc, create a link to the default conky if necessary
+# test for default, create a link to the default conky if necessary
 if ! [[ -e $CRC ]];then
     if [[ -e $ALDEFAULT ]];then
         ln -s "$ALDEFAULT" "$CRC"
@@ -229,7 +229,7 @@ while ! [[ $RET ]];do
     ## Populate dialog from array, get return value(s)
     RET=$($DLGDEC $WINICON --list --title="$TITLE" \
         --text="Session will be saved to:\n <b>$SESSIONFILE</b>" \
-        --checklist --width=400 --height=500 --multiple \
+        --checklist --width=450 --height=500 --multiple \
         --column="Select" --column="Conky Name" $LISTCONKY \
         --separator=":" \
         $OK $CANCEL \
@@ -242,8 +242,8 @@ while ! [[ $RET ]];do
         exit 0
     fi
     if ! [[ $RET ]];then  # No conkys chosen
-        MSG="Nothing chosen.\n\nKill any running Conkys\nand exit?"
-        $DLG $WINICON --title="Conky Chooser" --text="$MSG" $OK $CANCEL
+        MSG="No conky chosen. \n\nKill any running Conkys and exit?"
+        $QUESTION --title="Conky Chooser" --width=250 --height=100 --text="$MSG" $OK $CANCEL
         if [[ $? = 1 ]];then
             # restore previous saved-sessions file
             mv "$SESSIONS.bkp" "$SESSIONS"
@@ -274,7 +274,7 @@ while ! [[ $RET ]];do
         for name in ${retConky[*]};do       # loop through checkmarked conky names
             for ((j=0; j<${#conkysPath[*]}; j++));do  # traverse through elements
                 for f in ${conkysPath[j]};do    # compare with choice from dialog
-                    display=$( echo "$f" | awk -F"/" '{print $(NF-1)"/"$NF}')
+                    display=$( echo "$f" | awk -F"/" '{print $NF}')
                     if [[ $display = $name ]];then
                         echo -e "conky -c $f & sleep 1s" >> "$SESSIONFILE"
                         #start the conky (adjust the sleep time if required)

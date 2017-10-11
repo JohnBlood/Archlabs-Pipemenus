@@ -42,7 +42,7 @@ for x in $(find "$CONKYPATH" -type f );do
     if [[ $f = *conkyrc ]] || [[ $f = *conky ]];then
         # filename ends with *conky or *conkyrc
         # get directory/conkyname to display in list
-        CONKY=$( echo "$x" | awk -F"/" '{print $(NF-1)"/"$NF}')
+        CONKY=$( echo "$x" | awk -F"/" '{print $NF}')
         fillArrays $num "$x" "$CONKY"
         num=$(($num+1))
     fi
@@ -83,7 +83,7 @@ else
     for name in ${retConky[*]};do       # loop through checkmarked conky names
         for ((j=0; j<${#conkysPath[*]}; j++));do  # traverse through elements
             for f in ${conkysPath[j]};do    # compare with choice from dialog
-                display=$( echo "$f" | awk -F"/" '{print $(NF-1)"/"$NF}')
+                display=$( echo "$f" | awk -F"/" '{print $NF}')
                 if [[ $display = $name ]];then
                     exo-open "$f"
                 fi
