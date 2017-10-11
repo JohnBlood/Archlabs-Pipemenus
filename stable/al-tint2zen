@@ -106,7 +106,7 @@ fi
 tintRunning
 findTint
 
-# loop through arrays, and build msg text for yad dialog
+# loop through arrays, and build msg text for dialog
 unset LISTTINT
 for ((j=0; j<${#tintsArr[*]}; j++));do
     LISTTINT="$LISTTINT ${checkArr[j]} ${tintsArr[j]}"
@@ -121,6 +121,7 @@ RET=$($DLGDEC $WINICON --list --title="$TITLE" \
     )
 
 if (( $? == 1 )); then # cancel button pressed
+    $HOME/.config/polybar/scripts/launch.sh
     exit 0
 else
     > $SESSIONFILE    # Create new session file
@@ -148,6 +149,9 @@ else
                 # see if it matches the returned name
                 if [[ $display = $name ]];then
                     echo -e "$f" >> $SESSIONFILE
+                    if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
+                      killall -q polybar
+                    fi
                     tint2 -c "$f" &  #start the tint2
                     al-compositor --restart &   # restart compositor
                     sleep 1s
@@ -155,6 +159,7 @@ else
             done
         done
     done
+    $HOME/.config/polybar/scripts/launch.sh
 fi
 
 rm -r $TEMPFILE

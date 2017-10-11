@@ -209,9 +209,9 @@ $ASK "\n  Install different WMs/DEs?  [y/n]: "
 read -r desktop
 if ! [ "${desktop,,}" = "${no,,}" ]; then
   $ASK "\n  Window Managers and Desktop Environments (${b}defaults to Openbox${reg})\n
-  1${red})${reg}Xfce  2${red})${reg}i3 gaps\n\n\n: "
+  1${red})${reg}Xfce  2${red})${reg}i3 gaps  3${red})${reg}Bspwm  4${red})${reg}Awesome\n\n\n: "
   read -r wm
-  if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
+  if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]]; then
     if [[ $wm == *1* ]]; then
       $ASK "\n  Want Xfce to be your login session?  [y/n]: "
       read -r xfses
@@ -415,9 +415,9 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
 fi
 
 
-$SAY "#######################################################################################
+$SAY "${g}#######################################################################################
 #######                           Starting Install                              #######
-#######################################################################################"
+#######################################################################################${reg}"
 sleep 1; clear
 ### Do panel switch before everything else to stop from managing multiple menu files
 
@@ -427,15 +427,8 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
   # switch panel
   if [ "${panel,,}" = "${yes,,}" ]; then
     sudo pacman -S volumeicon network-manager-applet --noconfirm --needed
-    if [ -e $CONF_PATH/polybar/scripts/launch.sh ]; then
-      sed -i '/openbox-bar/ c\
-#  polybar -r --config=$CONF_PATH/config openbox-bar &' $CONF_PATH/polybar/scripts/launch.sh
-    fi
     if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile); then
       echo "/home/$USER/.config/tint2/default.tint2rc" >> $CONF_PATH/tint2/tint2-sessionfile
-    fi
-    if ! (grep "al-tint2-session" $AUTOSTART); then
-      echo "al-tint2-session &" >> $AUTOSTART
     fi
     if ! (grep "volumeicon" $AUTOSTART); then
       echo "sleep 2; volumeicon &" >> $AUTOSTART
@@ -457,20 +450,9 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
       </action>\
     </item>' $MENU
     fi
-    if [ -e $CONF_PATH/obmenu-generator/schema.pl ]; then
-      if ! [ "${panel,,}" = "${yes,,}" ]; then
-        sed -i '/Tint2 GUI/d' $CONF_PATH/obmenu-generator/schema.pl
-      fi
-    fi
-  else
-    rm -rf $CONF_PATH/obmenu-generator
-    sudo rm -f $BIN/{genmenu,oldmenu}
   fi
 else
-  rm -rf $CONF_PATH/{obmenu-generator,openbox,tint2}
-  if ! [[ "$wm" == *2* ]]; then
-    rm -rf $CONF_PATH/nitrogen
-  fi
+  rm -rf $CONF_PATH/{ob*,openbox,tint2} # Openbox was removed
 fi
 
 
@@ -940,9 +922,8 @@ fi
 
 
 
-
 # window manager and session
-if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
+if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]]; then
   if [[ $wm == *1* ]]; then
     sudo pacman -S xfce4 xfce4-goodies volumeicon network-manager-applet xfce4-pulseaudio-plugin --noconfirm --needed
     yaourt -S pamac-aur --noconfirm --needed
@@ -954,6 +935,12 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]]; then
     xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style -t int -s 0
   elif [[ $wm == *2* ]]; then
   	yaourt -S i3-gaps i3status --noconfirm --needed
+  elif [[ $wm == *3* ]]; then
+    sudo pacman -S bspwm sxhkd --noconfirm --needed
+  elif [[ $wm == *4* ]]; then
+    sudo pacman -S awesome --noconfirm --needed
+    mkdir -p ~/.config/awesome/
+    cp /etc/xdg/awesome/rc.lua ~/.config/awesome/
   else
     echo -e "\nNo WM/DE Chosen"
   fi
@@ -1073,8 +1060,6 @@ else
   fi
 fi
 
-
-openbox --reconfigure
 
 
 read -n1 -rsp $'\n  Setup Complete!!\n\n\n  Press Any Key to Reboot or Ctrl + c to exit...'

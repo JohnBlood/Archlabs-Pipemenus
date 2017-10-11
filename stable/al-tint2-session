@@ -51,13 +51,19 @@ testSessionfile(){
     if test -f  "$1" &>/dev/null;then # sessionfile found
         killTints
         while read line;do
-            tint2 -c "$line" &
-            sleep 1s
+          if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
+            killall -q polybar
+          fi
+          tint2 -c "$line" &
+          sleep 1s
         done < "$1"
     else
         echo -e "Created sessionfile \"$1\"\nRunning default tint2rc" 2>&1
         echo "$TINT2PATH/tint2rc" > "$SESSIONFILE"
         killTints
+        if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
+          killall -q polybar
+        fi
         tint2 -c "$TINT2PATH/tint2rc" &>/dev/null
     fi
 }
