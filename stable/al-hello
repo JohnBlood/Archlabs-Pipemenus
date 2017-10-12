@@ -110,10 +110,6 @@ HELPERS="$HOME/.config/xfce4/helpers.rc"
 MIMEAPP="$HOME/.config/mimeapps.list"
 CONF_PATH="$HOME/.config"
 
-# User interaction
-SAY="clear; echo -e"
-ASK="clear; printf"
-
 # determine if using nvidia graphics
 NV=$(lspci | grep -i "nvidia")
 
@@ -133,12 +129,12 @@ y='\E[1;33m'
 reg='\E[0m'
 
 # my thanks to the bunsenlabs guys for this nice little hello art
-$SAY "\n\n\n${b}                               _   _ _____ _     _     ___
+clear; echo -e "\n\n\n${b}                               _   _ _____ _     _     ___
                               | | | | ____| |   | |   / _ \\
                               | |_| |  _| | |   | |  | | | |
                               |  _  | |___| |___| |__| |_| |
-                              |_| |_|_____|_____|_____\___/\n${reg}"
-echo -e "                          Hi${b_nobold} ${USER}${reg}, Welcome to ArchLabs Linux! ${b_nobold}:)${reg}\n"
+                              |_| |_|_____|_____|_____\___/ \n${reg}"
+echo -e "                          Hi${b_nobold} ${USER} ${reg}, Welcome to ArchLabs Linux! ${b_nobold}:)${reg}\n"
 draw_box $R $C $H $W $col; sleep 1; read -n1 -rsp $'\n      Press Any Key to Continue...'
 clear
 echo -e "\n\n  During the following choices you will be asked to pick applications you like,
@@ -154,7 +150,7 @@ clear
 printf "\n\n  Would you like to update the system & mirrorlist? (recommended) [y/n]: "
 read -r upd
 if ! [ "${upd,,}" = "${no,,}" ]; then
-  $SAY "\nCurrent mirrorlist backed up to /etc/pacman.d/mirrorlist.backup"
+  clear; echo -e "\nCurrent mirrorlist backed up to /etc/pacman.d/mirrorlist.backup"
   sleep 1
 
   sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
@@ -174,25 +170,25 @@ if [ -z "${VM}" ]; then
   elif (pacman -Q virtualbox-guest-modules-arch > /dev/null) ; then
     sudo pacman -Rns virtualbox-guest-utils virtualbox-guest-modules-arch --noconfirm
   else
-    $SAY "\n  No virtaulbox modules found"
+    clear; echo -e "\n  No virtaulbox modules found"
   fi
 fi
 
 # Swapfile
 if free | awk '/^Swap:/ {exit !$2}'; then
-  $SAY "\n${g}  Swap space found on disk. No setup needed${reg}"
+  clear; echo -e "\n${g}  Swap space found on disk. No setup needed${reg}"
   sleep 1.5
 
 else
-  $ASK "\n  Would you like to setup a swapfile? (required for suspend or sleep) [y/n]: "
+  clear; printf "\n  Would you like to setup a swapfile? (required for suspend or sleep) [y/n]: "
   read -r swp
 
   if [ "${swp,,}" = "${yes,,}" ]; then
-    $ASK "\n  Set a custom size? (defaults to size of system RAM) [y/n]: "
+    clear; printf "\n  Set a custom size? (defaults to size of system RAM) [y/n]: "
     read -r cswp
 
     if [ "${cswp,,}" = "${yes,,}" ]; then
-      $ASK "\n  Enter the size of swap wanted eg. [8192M] or [8G] for an 8gb system
+      clear; printf "\n  Enter the size of swap wanted eg. [8192M] or [8G] for an 8gb system
   M = Mebibytes, G = Gibibytes (size of system RAM or greater required for sleep/suspend)\n\n\n: "
       read -r size
     fi
@@ -200,29 +196,29 @@ else
 fi
 
 if ! [ -z "${NV}" ]; then
-  $ASK "\n  Do you want to install nvidia drivers?  [y/n]: "
+  clear; printf "\n  Do you want to install nvidia drivers?  [y/n]: "
   read -r nvd
 fi
 
 # window manager and session
-$ASK "\n  Install different WMs/DEs?  [y/n]: "
+clear; printf "\n  Install different WMs/DEs?  [y/n]: "
 read -r desktop
 if ! [ "${desktop,,}" = "${no,,}" ]; then
-  $ASK "\n  Window Managers and Desktop Environments (${b}defaults to Openbox${reg})\n
+  clear; printf "\n  Window Managers and Desktop Environments (${b}defaults to Openbox${reg})\n
   1${red})${reg}Xfce  2${red})${reg}i3 gaps  3${red})${reg}Bspwm  4${red})${reg}Awesome\n\n\n: "
   read -r wm
   if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]]; then
     if [[ $wm == *1* ]]; then
-      $ASK "\n  Want Xfce to be your login session?  [y/n]: "
+      clear; printf "\n  Want Xfce to be your login session?  [y/n]: "
       read -r xfses
     fi
     if [[ $wm == *2* ]]; then
       if ! [ "${xfses,,}" = "${yes,,}" ]; then
-        $ASK "\n  Want i3 to be your login session?  [y/n]: "
+        clear; printf "\n  Want i3 to be your login session?  [y/n]: "
         read -r i3ses
       fi
     fi
-    $ASK "\n  ${red}Remove Openbox${reg}?  [y/n]: "
+    clear; printf "\n  ${red}Remove Openbox${reg}?  [y/n]: "
     read -r rmob
   fi
 fi
@@ -230,192 +226,192 @@ fi
 ## Panel Switch
 # openbox wasnt removed
 if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  $ASK "\n  Would you like to use Tint2?  [y/n]: "
+  clear; printf "\n  Would you like to use Tint2?  [y/n]: "
   read -r panel
   if [ "${panel,,}" = "${yes,,}" ]; then
-    $ASK "\n  Remove Polybar?  [y/n]: "
+    clear; printf "\n  Remove Polybar?  [y/n]: "
     read -r rmpoly
   fi
-  $ASK "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
+  clear; printf "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
   read -r dock
 else # using xfce and openbox was removed
   if [[ $wm == *1* ]]; then
-    $ASK "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
+    clear; printf "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
     read -r dock
   fi
 fi
 
-$ASK "\n  Select Applications to Install?  [y/n]: "
+clear; printf "\n  Select Applications to Install?  [y/n]: "
 read -r defaults
 
 if ! [ "${defaults,,}" = "${no,,}" ]; then
 
-  $ASK "\n  Web Browsers (Firefox is default)\n
+  clear; printf "\n  Web Browsers (Firefox is default)\n
   1${red})${reg}Chrome  2${red})${reg}Chromium  3${red})${reg}Opera\n\n\n: "
   read -r bwsr
   if [[ $bwsr == *1* ]] || [[ $bwsr == *2* ]] || [[ $bwsr == *3* ]]; then
     if [[ $bwsr == *1* ]] || [[ $bwsr == *2* ]]; then
-      $ASK "\n  Install google talk plugin?  [y/n]: "
+      clear; printf "\n  Install google talk plugin?  [y/n]: "
       read -r tlk
     fi
-    $ASK "\n  Uninstall Firefox?  [y/n]: "
+    clear; printf "\n  Uninstall Firefox?  [y/n]: "
     read -r remove_firefox
     if ! [[ $bwsr == "1" ]] || [ "${remove_firefox,,}" = "${no,,}" ]; then
-      $ASK "\n  Install flash plugin?  [y/n]: "
+      clear; printf "\n  Install flash plugin?  [y/n]: "
       read -r flsh
     fi
-    $SAY "\n  ArchLabs provides a local homepage ${b}~/.ArchLabs-homepage/index.html${reg}
+    clear; echo -e "\n  ArchLabs provides a local homepage ${b}~/.ArchLabs-homepage/index.html${reg}
   This can be opened with a browser and set as the homepage if you like\n\n\n"
     read -n1 -rsp $'  Press Any Key to continue...\n'
   else
-    $ASK "\n  Install flash plugin?  [y/n]: "
+    clear; printf "\n  Install flash plugin?  [y/n]: "
     read -r flsh
   fi
 
 
   if ! [[ $wm == *1* ]]; then
-    $ASK "\n  Text Editors (Geany is default)\n
+    clear; printf "\n  Text Editors (Geany is default)\n
   1${red})${reg}Atom  2${red})${reg}Sublime  3${red})${reg}Mousepad\n\n\n: "
     read -r edit
   else
-    $ASK "\n  Text Editors (Geany and Mousepad are default)\n
+    clear; printf "\n  Text Editors (Geany and Mousepad are default)\n
   1${red})${reg}Atom  2${red})${reg}Sublime\n\n\n: "
     read -r edit
   fi
   if [[ $edit == *1* ]] || [[ $edit == *2* ]] || [[ $edit == *3* ]]; then
-    $ASK "\n  Uninstall Geany?  [y/n]: "
+    clear; printf "\n  Uninstall Geany?  [y/n]: "
     read -r redit
   fi
 
 
   if ! [[ $wm == *1* ]]; then
-    $ASK "\n  Terminal Emulators (Termite is the default)\n
+    clear; printf "\n  Terminal Emulators (Termite is the default)\n
   1${red})${reg}Tilix  2${red})${reg}Terminator  3${red})${reg}Urxvt  4${red})${reg}Tilda  5${red})${reg}Xfce4 terminal\n\n\n: "
     read -r term
   else
-    $ASK "\n  Terminal Emulators (Termite is the default)\n
+    clear; printf "\n  Terminal Emulators (Termite is the default)\n
   1${red})${reg}Tilix  2${red})${reg}Terminator  3${red})${reg}Urxvt  4${red})${reg}Tilda\n\n\n: "
     read -r term
   fi
   if [[ $term == *3* ]]; then
-    $SAY "\n  You can copy paste in urxvt with ${b}[Alt + c] [Alt + v]${reg}\n\n\n"
+    clear; echo -e "\n  You can copy paste in urxvt with ${b}[Alt + c] [Alt + v]${reg}\n\n\n"
     read -n1 -rsp $'  Press Any Key to continue...\n'
   fi
 
 
-  $ASK "\n  Music Players (Audacious is the default)\n
+  clear; printf "\n  Music Players (Audacious is the default)\n
   1${red})${reg}Spotify  2${red})${reg}Nicotine+  3${red})${reg}Lollypop  4${red})${reg}Rythmbox  5${red})${reg}Clementine\n\n\n: "
   read -r musc
   if [[ $musc == *3* ]] || [[ $musc == *4* ]] || [[ $musc == *5* ]]; then
-    $ASK "\n  Uninstall Audacious?  [y/n]: "
+    clear; printf "\n  Uninstall Audacious?  [y/n]: "
     read -r rmusc
   fi
 
-  $ASK "\n  MPV is ArchLabs Default Video Player, install VLC instead? (120M) [y/n]: "
+  clear; printf "\n  MPV is ArchLabs Default Video Player, install VLC instead? (120M) [y/n]: "
   read -r vlc
 
   # if openbox wasnt removed and not using xfce we can change file manager
-  $ASK "\n  File Managers (Thunar is default)\n
+  clear; printf "\n  File Managers (Thunar is default)\n
   1${red})${reg}PCmanFM  2${red})${reg}Nautilus  3${red})${reg}Nemo\n\n\n: "
     read -r file
     if ! [[ $wm == *1* ]]; then
       if [[ $file == *1* ]] || [[ $file == *2* ]] || [[ $file == *3* ]]; then
-        $ASK "\n  Uninstall Thunar?  [y/n]: "
+        clear; printf "\n  Uninstall Thunar?  [y/n]: "
         read -r rmfile
       fi
     fi
 
-  $ASK "\n  Screen Capture\n
+  clear; printf "\n  Screen Capture\n
   1${red})${reg}SSR  2${red})${reg}OBS  2${red})${reg}Guvcview  4${red})${reg}Peek\n\n\n: "
   read -r cap
 
-  $ASK "\n  Video Editors\n
+  clear; printf "\n  Video Editors\n
   1${red})${reg}Kdenlive  2${red})${reg}Openshot  3${red})${reg}Lightworks\n\n\n: "
   read -r vid
 
-  $ASK "\n  Image Editors\n
+  clear; printf "\n  Image Editors\n
   1${red})${reg}Gimp  2${red})${reg}Inkscape  3${red})${reg}Krita  4${red})${reg}Pinta\n\n\n: "
   read -r img
 
-  $ASK "\n  Office Suites\n
+  clear; printf "\n  Office Suites\n
   1${red})${reg}Libre Office  2${red})${reg}Abiword  3${red})${reg}Caligra\n\n\n: "
   read -r off
 
-  $ASK "\n  USB Burners\n
+  clear; printf "\n  USB Burners\n
   1${red})${reg}Etcher  2${red})${reg}Mintstick  3${red})${reg}Unetbootin  4${red})${reg}Etcher-cli\n\n\n: "
   read -r usb
 
   if ! [[ $wm == *1* ]]; then
-    $ASK "\n  Disc Burners\n
+    clear; printf "\n  Disc Burners\n
   1${red})${reg}Xfburn  2${red})${reg}Simpleburn  3${red})${reg}K3b\n\n\n: "
     read -r brn
   fi
 
-  $ASK "\n  Mail Clients\n
+  clear; printf "\n  Mail Clients\n
   1${red})${reg}Thunderbird  2${red})${reg}Geary  3${red})${reg}Evolution  4${red})${reg}Mutt\n\n\n: "
   read -r mail
 
-  $ASK "\n  Chat and IRC\n
+  clear; printf "\n  Chat and IRC\n
   1${red})${reg}Hexchat  2${red})${reg}Pidgin  3${red})${reg}Weechat  4${red})${reg}Irssi\n\n\n: "
   read -r irc
 
-  $ASK "\n  Torrent Clients\n
+  clear; printf "\n  Torrent Clients\n
   1${red})${reg}Deluge  2${red})${reg}Transmission  3${red})${reg}qBittorrent\n\n\n: "
   read -r tor
 
-  $ASK "\n  Color Selector tools\n
+  clear; printf "\n  Color Selector tools\n
   1${red})${reg}Gpick  2${red})${reg}Gcolor2\n\n\n: "
   read -r pick
 
-  $ASK "\n  Additional terminal applications\n
+  clear; printf "\n  Additional terminal applications\n
   1${red})${reg}Mpd & Ncmpcpp  2${red})${reg}Cava  3${red})${reg}S-tui\n\n\n: "
   read -r ter
 
   # if not using xfce we can pick a few xfce apps
   if ! [[ $wm == *1* ]]; then
-    $ASK "\n  XFCE notifications?  [y/n]: "
+    clear; printf "\n  XFCE notifications?  [y/n]: "
     read -r notify
 
-    $ASK "\n  XFCE Power Manager?  [y/n]: "
+    clear; printf "\n  XFCE Power Manager?  [y/n]: "
     read -r pwr
 
-    $ASK "\n  Pamac package manager? (default is Pacli) [y/n]: "
+    clear; printf "\n  Pamac package manager? (default is Pacli) [y/n]: "
     read -r pac
   fi
 
-  $ASK "\n  Gnome Disk Utility & System Monitor  [y/n]: "
+  clear; printf "\n  Gnome Disk Utility & System Monitor  [y/n]: "
   read -r gnm
 
-  $ASK "\n  Catfish File Search  [y/n]: "
+  clear; printf "\n  Catfish File Search  [y/n]: "
   read -r sch
 
-  $ASK "\n  Steam  [y/n]: "
+  clear; printf "\n  Steam  [y/n]: "
   read -r steam
 
-  $ASK "\n  Dropbox  [y/n]: "
+  clear; printf "\n  Dropbox  [y/n]: "
   read -r dbox
 
-  $ASK "\n  A few of our favorite fonts?  [y/n]: "
+  clear; printf "\n  A few of our favorite fonts?  [y/n]: "
   read -r fnt
 
   if ! [ "${rmpoly,,}" = "${yes,,}" ]; then
-    $ASK "\n  Additional icon patched fonts for polybar? (260M) [y/n]: "
+    clear; printf "\n  Additional icon patched fonts for polybar? (260M) [y/n]: "
     read -r nfnt
   fi
 
-  $ASK "\n  Install oomox for making GTK themes?  [y/n]: "
+  clear; printf "\n  Install oomox for making GTK themes?  [y/n]: "
   read -r omox
 fi
 # end of default app selection
 
 # if openbox isnt removed we can install obmenu-generator and scripts
 if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  $ASK "\n  Install Openbox Menu Generator and ArchLabs Switcher?  [y/n]: "
+  clear; printf "\n  Install Openbox Menu Generator and ArchLabs Switcher?  [y/n]: "
   read -r obm
 fi
 
 
-$SAY "${g}#######################################################################################
+clear; echo -e "${g}#######################################################################################
 #######                           Starting Install                              #######
 #######################################################################################${reg}"
 sleep 1; clear
@@ -980,10 +976,10 @@ if [ "${swp,,}" = "${yes,,}" ]; then
         echo -e "\n  Appending to /ect/fstab\n"
         echo "/swapfile                                 none           swap    defaults 0 0" | sudo tee -a /etc/fstab
       else
-        $SAY "\n  Wrong formatting"
+        clear; echo -e "\n  Wrong formatting"
       fi
     else
-      $SAY "\n  No size entered"
+      clear; echo -e "\n  No size entered"
     fi
   else
     # Create a string of the users total M + 50M
@@ -1032,7 +1028,7 @@ fi
 
 # nvidia drivers
 if [ "${nvd,,}" = "${yes,,}" ]; then
-  $SAY "\n${g}  Next boot you will be promted with Nvidia Driver Installation${reg}"
+  clear; echo -e "\n${g}  Next boot you will be promted with Nvidia Driver Installation${reg}"
   sleep 2
   if [[ $wm == *2* ]] && [ "${i3ses,,}" = "${yes,,}" ]; then # if we are logging in to i3 we need to set it up is autostart
     if ! (grep "nvidia-easy-install" $CONF_PATH/i3/config); then
