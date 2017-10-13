@@ -450,7 +450,7 @@ clear; echo -e "${g}############################################################
 sleep 1; clear
 
 
-
+sudo pacman -S base-devel --needed --noconfirm
 
 
 # if openbox wasnt removed
