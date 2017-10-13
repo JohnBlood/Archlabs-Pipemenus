@@ -247,6 +247,25 @@ else # openbox was removed but xfce wasnt picked
   echo -e "\n  Openbox will be removed"
 fi
 
+# switch panel
+if [ "${panel,,}" = "${yes,,}" ]; then
+  if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile) > /dev/null 2>&1; then
+    echo "/home/$USER/.config/tint2/default.tint2rc" > $CONF_PATH/tint2/tint2-sessionfile
+  fi
+  if ! (grep "volumeicon" $AUTOSTART) > /dev/null 2>&1; then
+    echo "sleep 2; volumeicon &" >> $AUTOSTART
+  fi
+  if ! (grep "nm-applet" $AUTOSTART) > /dev/null 2>&1; then
+    echo "sleep 2; nm-applet &" >> $AUTOSTART
+  fi
+  if ! (pgrep -x volumeicon </dev/null) > /dev/null 2>&1; then
+    volumeicon &
+  fi
+  if ! (pgrep -x nm-applet </dev/null) > /dev/null 2>&1; then
+    nm-applet &
+  fi
+  al-tint2-session > /dev/null 2>&1
+fi
 
 
 
@@ -438,7 +457,7 @@ sleep 1; clear
 if ! [ "${rmob,,}" = "${yes,,}" ]; then
 
   # Setup menu generator and switcher scripts
-  if ! (pacman -Q obmenu-generator perl-data-dump gtk2-perl perl-linux-desktopfiles) > /dev/null 2>&1: then
+  if ! (pacman -Q obmenu-generator perl-data-dump gtk2-perl perl-linux-desktopfiles) > /dev/null 2>&1; then
     yaourt -S obmenu-generator perl-data-dump gtk2-perl perl-linux-desktopfiles --noconfirm --needed
   fi
   if ! (grep "genmenu" $MENU) > /dev/null 2>&1; then
@@ -449,26 +468,7 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
       </action>\
     </item>' $MENU
   fi
-
-  # switch panel
-  if [ "${panel,,}" = "${yes,,}" ]; then
-    if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile) > /dev/null 2>&1; then
-      echo "/home/$USER/.config/tint2/default.tint2rc" > $CONF_PATH/tint2/tint2-sessionfile
-    fi
-    if ! (grep "volumeicon" $AUTOSTART) > /dev/null 2>&1; then
-      echo "sleep 2; volumeicon &" >> $AUTOSTART
-    fi
-    if ! (grep "nm-applet" $AUTOSTART) > /dev/null 2>&1; then
-      echo "sleep 2; nm-applet &" >> $AUTOSTART
-    fi
-    if ! (pgrep -x volumeicon </dev/null) > /dev/null 2>&1; then
-      volumeicon &
-    fi
-    if ! (pgrep -x nm-applet </dev/null) > /dev/null 2>&1; then
-      nm-applet &
-    fi
-    al-tint2-session > /dev/null 2>&1
-  fi
+  openbox --reconfigure
 else
   rm -rf $CONF_PATH/{ob*,openbox} # Openbox was removed
 fi
