@@ -162,12 +162,12 @@ if [ -z "${VM}" ]; then
     sudo rm -f /etc/xdg/autostart/vboxclient.desktop
   fi
 
-  if (pacman -Q virtualbox-guest-modules-lts > /dev/null) ; then
-    sudo pacman -Rns virtualbox-guest-modules-lts --noconfirm
+  if (pacman -Q al-virtualbox-guest-modules-lts > /dev/null) ; then
+    sudo pacman -Rns al-virtualbox-guest-modules-lts virtualbox-guest-utils --noconfirm
   elif (pacman -Q virtualbox-guest-modules-arch > /dev/null) ; then
     sudo pacman -Rns virtualbox-guest-utils virtualbox-guest-modules-arch --noconfirm
   else
-    clear; echo -e "\n  No virtaulbox modules found"
+    clear; echo -e "\n  No virtaulbox modules installed"
   fi
 fi
 
@@ -197,7 +197,7 @@ fi
 
 
 if ! [ -z "${NV}" ]; then
-  clear; printf "\n  Do you want to install nvidia drivers?  [y/n]: "
+  clear; printf "\n  ${g}Nvidia Graphics Detected.${reg}\n\n  Want nvidia drivers installed?  [y/n]: "
   read -r nvd
 fi
 
@@ -256,7 +256,7 @@ read -r defaults
 
 if ! [ "${defaults,,}" = "${no,,}" ]; then
 
-  echo -e "\n\n  During the following you will be asked to pick applications you like,
+  clear; echo -e "\n\n  During the following you will be asked to pick applications you like,
   just enter the corresponding number of the application(s) you want installed
   (${red}unless told otherwise any combination of choices can be made${reg})"
 
@@ -452,9 +452,6 @@ if ! [ "${rmob,,}" = "${yes,,}" ]; then
 
   # switch panel
   if [ "${panel,,}" = "${yes,,}" ]; then
-    if ! (pacman -Q volumeicon network-manager-applet tint2) > /dev/null 2>&1; then
-      sudo pacman -S volumeicon network-manager-applet tint2 --noconfirm --needed
-    fi
     if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile) > /dev/null 2>&1; then
       echo "/home/$USER/.config/tint2/default.tint2rc" > $CONF_PATH/tint2/tint2-sessionfile
     fi
@@ -716,17 +713,7 @@ X-XFCE-Commands=google-chrome-stable' > $HOME/.local/share/xfce4/helpers/custom-
 
     # pamac & polkit
     if [ "${pac,,}" = "${yes,,}" ]; then
-      sudo pacman -S fakeroot make pkg-config --noconfirm --needed
-      yaourt -S pamac-aur xfce-polkit --noconfirm --needed
-
-      if [[ $wm == *2* ]]; then
-        if (grep "xfce-polkit" $CONF_PATH/i3/config) > /dev/null 2>&1; then
-          sed -i '/xfce-polkit/ c\
-exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit' $CONF_PATH/i3/config
-        else
-          echo "exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit" >> $CONF_PATH/i3/config
-        fi
-      fi
+      yaourt -S pamac-aur --noconfirm --needed
 
       if ! [ "${rmob,,}" = "${yes,,}" ]; then
         if (grep "pacli" $MENU) > /dev/null 2>&1; then
@@ -869,7 +856,7 @@ exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit' $CONF_PATH/i3/config
   # video editor
   if [[ $vid == *1* ]] || [[ $vid == *2* ]] || [[ $vid == *3* ]]; then
     if [[ $vid == *1* ]]; then
-      sudo pacman -S kdenlive kdebase-runtime dvdauthor frei0r-plugins qt5ct qt5-styleplugins breeze breeze-icons --noconfirm --needed
+      sudo pacman -S kdenlive kdebase-runtime dvdauthor frei0r-plugins breeze breeze-icons --noconfirm --needed
 
       if ! [ "${rmob,,}" = "${yes,,}" ]; then
         if ! (grep "QT_QPA_PLATFORMTHEME" $CONF_PATH/openbox/environment) > /dev/null 2>&1; then
@@ -900,9 +887,11 @@ stylesheets=@Invalid()
 toolbutton_style=4
 wheel_scroll_lines=3" > $CONF_PATH/qt5ct/qt5ct.conf
     fi
+
     if [[ $vid == *2* ]]; then
       sudo pacman -S openshot --noconfirm --needed
     fi
+
     if [[ $vid == *3* ]]; then
       yaourt -S lwks --noconfirm --needed
     fi
@@ -1093,7 +1082,7 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]];
 
   # XFCE
   if [[ $wm == *1* ]]; then
-    sudo pacman -S xfce4 xfce4-goodies volumeicon network-manager-applet xfce4-pulseaudio-plugin --noconfirm --needed
+    sudo pacman -S xfce4 xfce4-goodies xfce4-pulseaudio-plugin --noconfirm --needed
     yaourt -S pamac-aur --noconfirm --needed
 
     # copy configs
@@ -1104,16 +1093,6 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]];
     fi
     # fix desktop icons
     xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style -t int -s 0  # fix desktop icons
-
-    # ensure pamac is setup properly for i3
-    if [[ $wm == *2* ]]; then
-      if (grep "xfce-polkit" $CONF_PATH/i3/config) > /dev/null 2>&1; then
-        sed -i '/xfce-polkit/ c\
-exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit' $CONF_PATH/i3/config
-      else
-        echo "exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit" >> $CONF_PATH/i3/config
-      fi
-    fi
 
     # ensure pamac is setup properly for openbox
     if ! [ "${rmob,,}" = "${yes,,}" ]; then
@@ -1132,18 +1111,15 @@ exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit' $CONF_PATH/i3/config
     fi
   fi
 
-
   # I3 Gaps
   if [[ $wm == *2* ]]; then
   	yaourt -S i3-gaps i3status --noconfirm --needed
   fi
 
-
   # BSPWM
   if [[ $wm == *3* ]]; then
     sudo pacman -S bspwm sxhkd --noconfirm --needed
   fi
-
 
   # Awesome WM
   if [[ $wm == *4* ]]; then
@@ -1152,13 +1128,11 @@ exec --no-startup-id /usr/lib/xfce-polkit/xfce-polkit' $CONF_PATH/i3/config
     cp /etc/xdg/awesome/rc.lua $CONF_PATH/awesome/
   fi
 
-
   # Remove openbox
   if [ "${rmob,,}" = "${yes,,}" ]; then
     sudo pacman -Rn openbox oblogout obconf archlabs-ob-autostart archlabs-obkey archlabs-opensnap lxappearance-obconf --noconfirm
     rm -rf $CONF_PATH/{openbox,tint2,obmenu-generator,ob-autostart}
   fi
-
 
   # set session
   if [ "${xfses,,}" = "${yes,,}" ]; then
