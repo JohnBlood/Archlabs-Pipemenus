@@ -43,7 +43,7 @@ Multiple tint2s can be chosen.
 ### DIALOG VARIABLES
 DLGDEC="zenity"
 TITLE="ArchLabs Tint2 Edit"
-WINICON="--window-icon=distributor-logo-archlabs"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 
@@ -91,7 +91,7 @@ for ((j=0; j<${#tintsArr[*]}; j++));do
 done
 ## Populate dialog from array, get return value(s)
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-    --text="Select Tint2s to edit from the list\n\nMultiple can be chosen\n" \
+    --text="<big>Select Tint2s to edit from the list</big>\n\n" \
     --checklist --width=450 --height=500 --multiple \
     --column="Select" --column="Tint2 Name" $LISTINT --separator=":" \
     $OK $CANCEL \

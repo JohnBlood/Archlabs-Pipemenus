@@ -42,7 +42,7 @@ Multiple configs or scripts can be chosen.
 ### DIALOG VARIABLES
 DLGDEC="zenity"
 TITLE="ArchLabs Polybar Edit"
-WINICON="--window-icon=distributor-logo-archlabs"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 
@@ -90,7 +90,7 @@ for ((j=0; j<${#polybarsArr[*]}; j++));do
 done
 ## Populate dialog from array, get return value(s)
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-    --text="Select Polybar Configs or Scripts to edit\n\n" \
+    --text="<big>Select Polybar Configs or Scripts to edit</big>\n\n" \
     --checklist --width=450 --height=500 --multiple \
     --column="Select" --column="File Name" $LISTBAR --separator=":" \
     $OK $CANCEL \

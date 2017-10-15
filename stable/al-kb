@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     if gui:     # output formatted keybinds text in text window
         dlg = "zenity --text-info --title='Openbox Keybinds' "
-        dlg = dlg + "--window-icon=distributor-logo-archlabs "
+        dlg = dlg + "--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png "
         dlg = dlg + "--filename=$HOME/.config/openbox/kbinds.txt "
         dlg = dlg + "--width=700 --height=700 "
         os.system(dlg)

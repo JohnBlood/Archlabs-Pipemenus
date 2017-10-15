@@ -46,8 +46,8 @@ USAGE="\v\tUSAGE:\n\tWith no command argument, the script uses the chosen
 
 ### DIALOG VARIABLES
 DLGDEC="zenity"
-TITLE="ArchLabs Conky Manager"
-WINICON="--window-icon=distributor-logo-archlabs"
+TITLE="ArchLabs Tint2 Manager"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 ########################################################################
@@ -114,7 +114,7 @@ done
 
 ## Populate dialog from array, get return value(s)
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-    --text="Select Tint2s from the list:\n" \
+    --text="<big>Select Tint2s to launch</big>\n" \
     --checklist --width=450 --height=500 --multiple \
     --column="Select" --column="Tint2 Name" $LISTTINT --separator=":" \
     $OK $CANCEL \

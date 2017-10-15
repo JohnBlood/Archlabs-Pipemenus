@@ -63,9 +63,9 @@ USAGE2="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
 ### DIALOG VARIABLES
 DLG="zenity --info"
 DLGDEC="zenity"
-QUESTION="zenity --question --window-icon=distributor-logo-archlabs"
+QUESTION="zenity --question --window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 TITLE="ArchLabs Conky Manager"
-WINICON="--window-icon=distributor-logo-archlabs"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 
@@ -141,7 +141,7 @@ writeSessions(){    # save a new sessionfile name for use by a menu
     fi
     if grep -qx "$SESSIONFILE" "$SESSIONS";then # session was previously saved
         if [[ $2 = "-z" ]];then    # input was from input dialog, so ask OK?
-            $QUESTION --title="Conky sessionfile" --width=250 --height=100 --text="Filename already in use\n\nOverwrite it?" $CANCEL $OK
+            $QUESTION --title="Conky sessionfile" --width=250 --height=100 --text="<big>Filename already in use</big>\n\nOverwrite it?" $CANCEL $OK
             if (( $? == 1 ));then
                 exit 0
             fi
@@ -184,12 +184,12 @@ for arg in "$@";do
         -z          ) SPATH=$($DLGDEC $WINICON --entry --width=350 --height=200 \
                         --title="Save Conky sessionfile" \
                         --entry-text="New session file name" \
-                        --text="File to be saved in \n\n\n$CONKYPATH/\n\n" \
+                        --text="<big>File to be saved in</big> \n\n\n$CONKYPATH/\n\n" \
                         $OK $CANCEL \
                         )
                       (( $? == 1 )) && exit 0
                       if [[ -z $SPATH ]];then     # entry was empty
-                          $DLG $WINICON --title="Conky sessionfile" --width=250 --height=100 --text="No file specified for new saved session\n\nExiting..." $OK
+                          $DLG $WINICON --title="Conky sessionfile" --width=250 --height=100 --text="<big>No file specified for new saved session</big>\n\nExiting..." $OK
                           exit 1
                       else
                           writeSessions "$SPATH" "-z"   # saved session file from input dialog
@@ -228,7 +228,7 @@ done
 while ! [[ $RET ]];do
     ## Populate dialog from array, get return value(s)
     RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-        --text="Session will be saved to:\n <b>$SESSIONFILE</b>" \
+        --text="<big>Session will be saved to:</big>\n <b>$SESSIONFILE</b>" \
         --checklist --width=450 --height=500 --multiple \
         --column="Select" --column="Conky Name" $LISTCONKY \
         --separator=":" \
@@ -242,7 +242,7 @@ while ! [[ $RET ]];do
         exit 0
     fi
     if ! [[ $RET ]];then  # No conkys chosen
-        MSG="No conky chosen. \n\nKill any running Conkys and exit?"
+        MSG="<big>No conky chosen</big> \n\nKill any running Conkys and exit?"
         $QUESTION --title="Conky Chooser" --width=250 --height=100 --text="$MSG" $OK $CANCEL
         if [[ $? = 1 ]];then
             # restore previous saved-sessions file

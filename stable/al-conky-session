@@ -32,7 +32,7 @@ USAGE="\vUSAGE:\tal-conky-session [OPTION(S)]...FILES
 ### DIALOG VARIABLES
 DLG="zenity "
 TITLE="ArchLabs Conky Session"
-WINICON="--window-icon=distributor-logo-archlabs"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 
@@ -75,7 +75,7 @@ findArgs(){     # get command args (switches & sessionfile paths)
 
 killConkys(){
     if pidof conky &>/dev/null; then
-        MSG="Kill running conkys first?"
+        MSG="<big>Kill running conkys first?</big>"
         $DLG $WINICON --title="$TITLE" --text="$MSG"
         if (( $? == 0 )); then            # kill all conkys
             killall conky && sleep 0.2s

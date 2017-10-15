@@ -18,8 +18,8 @@ CONKYPATH="$HOME/.config/conky"
 
 ### DIALOG VARIABLES
 DLGDEC="zenity --width=400 --height=500 "
-TITLE="ARCHLabs Conky Edit"
-WINICON="--window-icon=distributor-logo-bunsenlabs"
+TITLE="ArchLabs Conky Edit"
+WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
 
@@ -61,7 +61,7 @@ done
 
 ## Populate yad dialog from array, get return value(s)
 RET=$($DLGDEC $WINICON --list --title="$TITLE" \
-    --text="Select Conkys to edit from the list\nMultiple Conkys can be chosen" \
+    --text="<big>Select Conkys to edit from the list</big>\n" \
     --checklist \
     --column="Select" --column="Conky Name" $LISTCONKY --separator=":"\
     $OK $CANCEL \
