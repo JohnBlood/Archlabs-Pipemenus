@@ -227,40 +227,8 @@ fi
 
 
 
-## Panel Switch
-# openbox wasnt removed
-if ! [ "${rmob,,}" = "${yes,,}" ]; then
-  clear; printf "\n  Switch to Tint2? (${b}switch anytime in the menu${reg})  [y/n]: "
-  read -r panel
-  clear; printf "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
-  read -r dock
-elif [ "${rmob,,}" = "${yes,,}" ] && [[ $wm == *1* ]]; then  # using xfce and openbox was removed
-  clear; printf "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
-  read -r dock
-else # openbox was removed but xfce wasnt picked
-  echo -e "\n  Openbox will be removed"
-fi
-
-# switch panel
-if [ "${panel,,}" = "${yes,,}" ]; then
-  if ! (grep "default.tint2rc" $CONF_PATH/tint2/tint2-sessionfile) > /dev/null 2>&1; then
-    echo "/home/$USER/.config/tint2/default.tint2rc" > $CONF_PATH/tint2/tint2-sessionfile
-  fi
-  if ! (grep "volumeicon" $AUTOSTART) > /dev/null 2>&1; then
-    echo "sleep 2; volumeicon &" >> $AUTOSTART
-  fi
-  if ! (grep "nm-applet" $AUTOSTART) > /dev/null 2>&1; then
-    echo "sleep 2; nm-applet &" >> $AUTOSTART
-  fi
-  if ! (pgrep -x volumeicon </dev/null) > /dev/null 2>&1; then
-    volumeicon &
-  fi
-  if ! (pgrep -x nm-applet </dev/null) > /dev/null 2>&1; then
-    nm-applet &
-  fi
-  al-tint2-session > /dev/null 2>&1
-fi
-
+clear; printf "\n  Docks \n\n  1${red})${reg}Plank  2${red})${reg}Docky  3${red})${reg}Cairo\n\n  "
+read -r dock
 
 
 
@@ -1132,6 +1100,12 @@ if [[ $wm == *1* ]] || [[ $wm == *2* ]] || [[ $wm == *3* ]] || [[ $wm == *4* ]];
   if [ "${rmob,,}" = "${yes,,}" ]; then
     sudo pacman -Rn openbox oblogout obconf archlabs-ob-autostart archlabs-obkey archlabs-opensnap lxappearance-obconf --noconfirm
     rm -rf $CONF_PATH/{openbox,tint2,obmenu-generator,ob-autostart}
+    if [[ $wm == *1* ]]; then
+      if ! [[ $wm == *2* ]] || [[ $wm == *3* ]]; then
+        sudo pacman -Rns archlabs-polybar archlabs-networkmanager-dmenu --noconfirm
+        rm -rf $CONF_PATH/{polybar,networkmanager-dmenu}
+      fi
+    fi
   fi
 
   # set session
@@ -1230,6 +1204,7 @@ else
   fi
 fi
 
+clear
 read -n1 -rsp $'\n  Setup Complete!!\n\n\n  Press Any Key to Reboot or Ctrl + c to exit...'
 
 systemctl reboot
