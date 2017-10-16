@@ -170,16 +170,14 @@ PICKX="X configs"
 
 ### DIALOG VARIABLES
 DIALOG="zenity --window-icon=distributor-logo-archlabs"
-DIALOGDEC="zenity --html --window-icon=distributor-logo-archlabs"
+DIALOGDEC="zenity --question --window-icon=distributor-logo-archlabs"
 TITLE="ALOB Configuration Manager"
 T="--text="
 OK="--ok-label=Ok"
 CANCEL="--cancel-label=Cancel"
-TXTINTRO='<big><b>ArchLabs Openbox Configuration Manager</b></big>
+TXTINTRO="<big>ArchLabs Openbox Configuration Manager</big>\n\n
 
-
-<b>Save or Restore settings for:</b>
-
+Save or Restore settings for:\n
     Openbox theme
     GTK theme
     Conkys
@@ -190,7 +188,7 @@ TXTINTRO='<big><b>ArchLabs Openbox Configuration Manager</b></big>
     Exit dialog theme
     X configs (.bashrc, .Xresources)
     Termite (if default term)
-    + Screenshot'
+    + Screenshot"
 ### END DIALOG VARIABLES
 
 ### USER SETTINGS
@@ -207,16 +205,16 @@ function Intro(){
     getSet
     #  If alob/ is empty, then don't display "View Saved" option in Intro dialog
     if (( NUMDIRS > 0 ));then
-        INTRO=$($DIALOGDEC "$TXTINTRO" \
-        --title="$TITLE" \
-        ---extra-button="Save Settings:0" --extra-button="View Saved:2" \
-        2>/dev/null )
+        INTRO=$($DIALOGDEC --text="$TXTINTRO" \
+        --title=$TITLE --width=400 --height=350\
+        --ok-label="Save Settings" --extra-button="View Saved:2" $CANCEL \
+        )
     else
         INTRO=$($DIALOGDEC \
-        --title="$TITLE" \
-        "$TXTINTRO" \
-        --extra-button="Save Settings:0" $CANCEL \
-        2>/dev/null )
+        --title=$TITLE --width=400 --height=350\
+        --text="$TXTINTRO" \
+        --ok-label="Save Settings" $CANCEL \
+        )
     fi
     RET=$?
     case $RET in
@@ -264,29 +262,23 @@ function getActiveMonitorDimensions(){   # Set width and height for View dialog
 }
 
 function setName(){  # set name of collection, make dir and session settings file
-    MSG="  Configurations will be saved to a new directory in  \
-    \n  $CONFIGPATH\n\n  Enter name of new collection...  "
-    MSG2="  No file specified for new saved session.\n\n  Try again?"
+    MSG="Configurations will be saved to a new directory in  \
+    \n$CONFIGPATH\n\n  Enter name of new collection...  "
     LOOP=1
     DEL=0
     while [[ $LOOP ]];do  # loop dialog if nothing is selected
         ANS=$($DIALOG --entry \
-            "$CANCEL" "$OK" \
+            $CANCEL $OK \
             "$T$MSG" \
             2>/dev/null )
         if (( $? == 1 )) ;then # Cancel was selected
             Intro
         elif [[ ! $ANS ]] ;then     # entry was empty
-            $DIALOG --image="dialog-question" \
-            "$CANCEL" "$OK" \
-            "$T$MSG2" \
-            2>/dev/null
+            $DIALOGDEC --width=300 --height=200 --text="No file specified for new saved session.\n\nTry again?"  \
+            $CANCEL $OK \
             RET=$?
-            echo -e "\n  No name entered for new collection!" 2>&1
-            if (( RET == 0 ));then
-                continue
-            else
-                Intro
+            if [[ $RET == 0 ]]; then
+              continue
             fi
         else
             ANS=$(echo $ANS | sed -e 's/ /_/g')    # replace any spaces in dir name
@@ -294,7 +286,7 @@ function setName(){  # set name of collection, make dir and session settings fil
             if [[ -d $CONFIGDIR ]];then
                 echo -e "\n  $CONFIGDIR already exists"
 
-                $DIALOG --form --image="dialog-question" \
+                $DIALOGDEC --image="dialog-question" \
                 --text="Overwrite existing saved session?" \
                 "$CANCEL" "$OK" \
                 --width=300 \
@@ -900,9 +892,8 @@ function saveSettings(){
 
     SLOOP=1
     while (( SLOOP == 1 ));do
-        CHOICE=$($DIALOGDEC --list --checklist \
+        CHOICE=$($DIALOG --list --checklist --width=400  --height=500\
             --title="Choose the configs to save..." \
-            --extra-button="Select All:2" \
             $CANCEL $OK \
             --column="Select" --column="Config" "${COLUMNS[@]}" \
             2>/dev/null )
@@ -917,7 +908,7 @@ function saveSettings(){
             SHOW=1
         else
             if [[ ! $CHOICE ]] ; then # entry field is empty, so try again
-                RET=$($DIALOG  --image="dialog-question" \
+                RET=$($DIALOGDEC \
                 --text="\n  Make a selection...." \
                 $CANCEL $OK \
                 2>/dev/null )
@@ -1034,7 +1025,7 @@ function restoreSettings(){
     FPATH=""
     LOOP=1
     while [[ $LOOP ]] ;do
-        CONFIG=$($DIALOGDEC --list --title="$TITLE" \
+        CONFIG=$($DIALOG --list --title="$TITLE" \
             --text="Double-click selection, or \"Enter\", or use the \"Restore\" button to restore settings\n" \
             --separator=" " \
             --extra-button="About:5" \
@@ -1043,9 +1034,9 @@ function restoreSettings(){
             --always-print-result \
             --width=$W --height=$H --center --image-preview \
             --expand-column=3 \
-            --column="Last Set:IMG" \
-            --column="Config Name":TEXT \
-            --column="Screenshot":IMG \
+            --column="Last Set" \
+            --column="Config Name" \
+            --column="Screenshot" \
             $DLGLIST \
             2>/dev/null )
         RET=$?

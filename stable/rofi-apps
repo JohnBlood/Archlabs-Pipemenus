@@ -19,7 +19,11 @@
 
 #  -combi-modi run,drun,window    ### enables combining different modes into one combi mode
 
-#  -fullscreen    ###sets fullscreen
+#  -fullscreen    ### sets fullscreen
+
+#  -show-icons    ### enables icons
+
+#  -me-select-entry '' -me-accept-entry 'Mouse1'   ### Enables single click to avtivate items
 
 #  -yoffset 24   ### sets offset from a given edge, "y" is vertical (use negative values to change which edge)
 
@@ -27,4 +31,4 @@
 
 
 # do the launcher
-rofi -modi run,drun,window -show drun -show-icons true -me-select-entry '' -me-accept-entry 'Mouse1' -sidebar-mode
+rofi -modi run,drun,window -show drun -show-icons -me-select-entry '' -me-accept-entry 'Mouse1' -sidebar-mode
