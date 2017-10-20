@@ -36,50 +36,48 @@ USAGE=$(
 
 findArgs(){     # get command args
     for arg in "$@";do
-        if [[ $1 = "-h" ]] || [[ $1 = "--help" ]];then
-            echo "$USAGE"
-            exit 0
-        else
-            echo -e "\tERROR: sorry I don't understand the input"
-            echo "$USAGE"
-            exit 0
-        fi
+      if [[ $1 = "-h" ]] || [[ $1 = "--help" ]];then
+        echo "$USAGE"
+        exit 0
+      else
+        echo -e "\tERROR: sorry I don't understand the input"
+        echo "$USAGE"
+        exit 0
+      fi
     done
 }
 
 testSessionfile(){
+    if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
+      killall -q polybar
+    fi
+
+    killTints
+
     if test -f  "$1" &>/dev/null;then # sessionfile found
-        killTints
-        while read line;do
-          if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
-            killall -q polybar
-          fi
-          tint2 -c "$line" &
-          sleep 1s
-        done < "$1"
+      while read line;do
+        tint2 -c "$line" &
+        sleep 1s
+      done < "$1"
     else
-        echo -e "Created sessionfile \"$1\"\nRunning default tint2rc" 2>&1
-        echo "$TINT2PATH/tint2rc" > "$SESSIONFILE"
-        killTints
-        if pgrep -x "polybar" >/dev/null; then # Terminate already running polybar instances
-          killall -q polybar
-        fi
-        tint2 -c "$TINT2PATH/tint2rc" &>/dev/null
+      echo -e "Created sessionfile \"$1\"\nRunning default tint2rc" 2>&1
+      echo "$TINT2PATH/tint2rc" > "$SESSIONFILE"
+      tint2 -c "$TINT2PATH/tint2rc" &>/dev/null
     fi
 }
 
 killTints(){
     pgrep -a tint2 | while read pid cmd; do
-        if [[ ${cmd%% *} = tint2 ]]; then
-            kill "$pid"
-        fi
+      if [[ ${cmd%% *} = tint2 ]]; then
+        kill "$pid"
+      fi
     done
 }
 
 if [ $# -eq 0 ];then    # if no args, then run default sessionfile
-    testSessionfile "$SESSIONFILE"
+  testSessionfile "$SESSIONFILE"
 else
-    findArgs "$@"
+  findArgs "$@"
 fi
 
 exit 0

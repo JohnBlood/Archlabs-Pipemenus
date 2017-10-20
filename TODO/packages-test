@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-
-AUTOSTART="$HOME/.config/openbox/autostart"
-CONF_PATH="$HOME/.config"
-
 DIALOG="zenity --info"
 QUESTION="zenity --question"
 WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
@@ -49,16 +45,15 @@ while ! [[ $DONE ]]; do
     # loop through returned choices, add to array
     i=0
     OIFS=$IFS   # save Internal Field Separator
-    IFS=":"     # separator is ":" in returned choices
+    IFS=" "     # separator is ":" in returned choices
     for pkg in $DONE; do
       retPackage[$i]="$pkg"
       i=$(($i+1))
     done
     IFS=$OIFS   # reset IFS back to default
 
-    for pkg in ${retPackage[*]};do   # loop through checkmarked packages
-      gksu "sudo pacman -S $pkg --noconfirm" | zenity --progress --pulsate --width=250 --height=100
-    done
+    gksu "sudo pacman -S ${retPackage}[*] --noconfirm --needed" | zenity --progress --pulsate --auto-close --width=250 --height=100
+
   fi
 done
 

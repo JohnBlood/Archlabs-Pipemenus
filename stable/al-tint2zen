@@ -121,7 +121,7 @@ RET=$($DLGDEC $WINICON --list --title="$TITLE" \
     )
 
 if (( $? == 1 )); then # cancel button pressed
-    $HOME/.config/polybar/scripts/launch.sh
+    launch-polybar
     exit 0
 else
     > $SESSIONFILE    # Create new session file
@@ -159,7 +159,7 @@ else
             done
         done
     done
-    $HOME/.config/polybar/scripts/launch.sh
+    launch-polybar
 fi
 
 rm -r $TEMPFILE
