@@ -28,18 +28,16 @@ See /usr/share/archlabs/docs/helpfile-conkyzen.txt and "man conky"
 for more information.
 '
 # look for a help option somewhere
-for i in "$@"
-do
-    case "$i" in
-    -h|--help)
-        echo "$HELP"
-        exit 0
-        ;;
-    esac
+for i in "$@"; do
+  case "$i" in
+  -h|--help)
+    echo "$HELP"
+    exit 0
+    ;;
+  esac
 done
 
 AL_COMMON_LIBDIR='/usr/lib/archlabs/common'
-
 CONKYDEFAULT="$HOME/.conkyrc"
 CONKYPATH="$HOME/.config/conky"
 CSESSIONFILE="$CONKYPATH/conky-sessionfile"
@@ -49,100 +47,99 @@ CSESSION="al-conky-session"
 HELPFILE="/usr/share/archlabs/docs/helpfile-conkyzen.txt"
 
 if ! . "$AL_COMMON_LIBDIR/al-include.cfg" 2> /dev/null; then
-    echo "Error: Failed to source al-include.cfg in $AL_COMMON_LIBDIR" >&2
-    exit 1
+  echo "Error: Failed to source al-include.cfg in $AL_COMMON_LIBDIR" >&2
+  exit 1
 fi
 if [ ! -e "$CSESSIONFILE" ] 2> /dev/null ; then
-    echo "Error: Failed to locate conky-sessionfile in $CONKYPATH" >&2
-    echo "conky -c $HOME/.conkyrc & sleep 1" > "$CSESSIONFILE"
+  echo "Error: Failed to locate conky-sessionfile in $CONKYPATH" >&2
+  echo "conky -c $HOME/.conkyrc & sleep 1" > "$CSESSIONFILE"
 fi
 if [ ! -e "$SESSIONS" ] 2> /dev/null ; then
-    echo "$0: Failed to locate saved-sessions in $CONKYPATH" >&2
+  echo "$0: Failed to locate saved-sessions in $CONKYPATH" >&2
 fi
 
 declareDependencies zenity
 
 getSessions(){  # read any saved sessions from save-sessions file
     menuItem "Default" "$CSESSION $CSESSIONFILE"
-    if [ -e "$SESSIONS" ]
-    then
-        while read -r session ;do
-            [[ -z $session ]] && continue   # skip if line is blank
-            menuItem "$session" "$CSESSION $session"
-        done < "$SESSIONS"
+    if [ -e "$SESSIONS" ]; then
+      while read -r session ; do
+        [[ -z $session ]] && continue   # skip if line is blank
+        menuItem "$session" "$CSESSION $session"
+      done < "$SESSIONS"
     else
-        echo "$0: Failed to locate saved-sessions in $CONKYPATH" >&2
+      echo "$0: Failed to locate saved-sessions in $CONKYPATH" >&2
     fi
 }
 
 loadChooserMenu(){
-    if type "$CZEN" &>/dev/null;then  # al-conkyzen script found
-        menuItem "Conky Chooser" "$CZEN"
+    if type "$CZEN" &>/dev/null; then  # al-conkyzen script found
+      menuItem "Conky Chooser" "$CZEN"
     fi
 }
 
 loadNewsessionMenu(){
-    if type "$CZEN" &>/dev/null;then  # al-conkyzen script found
-        menuItem "New Conky Session" "$CZEN -z"
+    if type "$CZEN" &>/dev/null; then  # al-conkyzen script found
+      menuItem "New Conky Session" "$CZEN -z"
     fi
 }
 
 loadReloadMenu(){
-    if type "$CSESSION" &>/dev/null;then  # al-conky-session script found
-        menuItem "Reload Conkys" "$CSESSION"
+    if type "$CSESSION" &>/dev/null; then  # al-conky-session script found
+      menuItem "Reload Conkys" "$CSESSION"
     fi
 }
 
 loadSavedsessionSubmenu(){
-    if type "$CSESSION" &>/dev/null;then  # al-conky-session script found
-        menuSubmenu "Sessions" "Saved Sessions"
-        getSessions
-        menuSubmenuEnd
+    if type "$CSESSION" &>/dev/null; then  # al-conky-session script found
+      menuSubmenu "Sessions" "Saved Sessions"
+      getSessions
+      menuSubmenuEnd
     fi
 }
 
 loadPinMenu(){
-    if type al-conkypin &>/dev/null;then
-        menuItem "Pin moveable Conkys" "al-conkypin"
-        menuSeparator
+    if type al-conkypin &>/dev/null; then
+      menuItem "Pin moveable Conkys" "al-conkypin"
+      menuSeparator
     fi
 }
 
 loadEditMenu(){
     menuItem "Default conkyrc" "exo-open $CONKYDEFAULT"
-    if [[ $(pidof conky) ]];then
-        menuSubmenu "RunningConky" "Running Conkys"
-        while read -r session ;do  # get running conkys from sessionfile
-            [[ -z $session ]] && continue
-            CPATH=$(echo "$session" | awk '{print $3}')
-            CONKY=$(echo "$CPATH" | awk -F"/" '{print $(NF-1)"/"$NF }')
-            menuItem "$CONKY" "exo-open $CPATH"
-        done < "$CSESSIONFILE"
-        menuSubmenuEnd
+    if [[ $(pidof conky) ]]; then
+      menuSubmenu "RunningConky" "Running Conkys"
+      while read -r session; do  # get running conkys from sessionfile
+        [[ -z $session ]] && continue
+        CPATH=$(echo "$session" | awk '{print $3}')
+        CONKY=$(echo "$CPATH" | awk -F"/" '{print $(NF-1)"/"$NF }')
+        menuItem "$CONKY" "exo-open $CPATH"
+      done < "$CSESSIONFILE"
+      menuSubmenuEnd
     else
-        menuItem "No Running Conkys"
+      menuItem "No Running Conkys"
     fi
 }
 
 getConkys(){
     menuSubmenu "EditConky" "Edit Conkys"
-        if type al-conkyedit &>/dev/null;then  # al-conkyedit script found
-            menuItem "Conky Editor" "al-conkyedit"
-            loadEditMenu
-        else
-            loadEditMenu
-        fi
+    if type al-conkyedit &>/dev/null;then  # al-conkyedit script found
+      menuItem "Conky Editor" "al-conkyedit"
+      loadEditMenu
+    else
+      loadEditMenu
+    fi
     menuSubmenuEnd
 }
 
 checkHelpfile(){
     DLG="zenity --text-info \
-    --title='ArchLabs Conky Manager Help' \
+    --title='ArchLabs Conky Chooser Help' \
     --filename=$HELPFILE \
-    --width=650 --height=700 \
-    --ok-label=OK"
+    --width=650 --height=700"
+    
     if [[ -e $HELPFILE ]];then
-        menuItem "Conky Manager Help" "$DLG"
+      menuItem "Conky Chooser Help" "$DLG"
     fi
 }
 

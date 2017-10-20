@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-## written by Nathaniel Maia for ArchLabs Minimo  <natemaia10@gmail.com>
+## written by Nathaniel Maia for ArchLabs  <natemaia10@gmail.com>
 ##
 ## any enquiries https://sourceforge.net/projects/archlabs-linux-minimo/
 
 # Remove itself from autostart
 if [ -e $HOME/.config/openbox/autostart ]; then
   sed -i '/al-hello/d' $HOME/.config/openbox/autostart
+  sed -i '/al-panel-chooser/d' $HOME/.config/openbox/autostart
 fi
 
 # i found this box somewhere and cannot remember
@@ -100,6 +101,9 @@ C=6      # Column
 H=12     # Height
 W=81     # Width
 col=1    # Color (red)
+
+
+
 
 # set some paths
 BIN="/usr/bin"

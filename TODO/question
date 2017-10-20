@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# colours
+b='\E[1;34m'
+red='\E[1;31m'
+g='\E[1;32m'
+y='\E[1;33m'
+reg='\E[0m'
+
+
+# From values passed setQuestion creates dialog in a decent structure
+#
+# If the array only has one value it will be a true or false option
+
+
+# $1 first arg: should be the user input name
+#
+# $2 second arg: The visible name to the user this will only be seen here and has no other effect
+#
+# $3 third arg "get=()": The visible names of the choices the user has available
+#
+# MUST be passed as get=() array eg get=(Plank Docky Cairo-dock)
+
+
+setQuestion() {
+
+    if [[ ${#get[@]} -eq 6 ]]; then
+      printf "\n  Install $2
+      \n  1${red})${reg}${get[1]}  2${red})${reg}${get[2]}  3${red})${reg}${get[3]}  4${red})${reg}${get[4]}  5${red})${reg}${get[5]}  6${red})${reg}${get[6]}\n\n\n: "
+    elif [[ ${#get[@]} -eq 5 ]]; then
+      printf "\n  Install $2
+      \n  1${red})${reg}${get[1]}  2${red})${reg}${get[2]}  3${red})${reg}${get[3]}  4${red})${reg}${get[4]}  5${red})${reg}${get[5]}\n\n\n: "
+    elif [[ ${#get[@]} -eq 4 ]]; then
+      printf "\n  Install $2
+      \n  1${red})${reg}${get[1]}  2${red})${reg}${get[2]}  3${red})${reg}${get[3]}  4${red})${reg}${get[4]}\n\n\n: "
+    elif [[ ${#get[@]} -eq 3 ]]; then
+      printf "\n  Install $2
+      \n  1${red})${reg}${get[1]}  2${red})${reg}${get[2]}  3${red})${reg}${get[3]}\n\n\n: "
+    elif [[ ${#get[@]} -eq 2 ]]; then
+      printf "\n  Install $2
+      \n  1${red})${reg}${get[1]}  2${red})${reg}${get[2]}\n\n\n: "
+    else
+      printf "\n  Install $2?  [y/N]: "
+    fi
+
+    read -r $1  # read input as the name of choice
+}
+
+setQuestion browser
+
+
+for dir in $(ls); do
+  cd $dir/LC_MESSAGES/
+  sudo rm pantheon-greeter.mo
+  cd /usr/share/locale/
+done

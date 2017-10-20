@@ -30,7 +30,7 @@ USAGE="\vUSAGE:\tal-conky-session [OPTION(S)]...FILES
 \t\"al-conky-session --default sessionfile1 sessionfile2 etc\""
 
 ### DIALOG VARIABLES
-DLG="zenity "
+DLG="zenity --question --width=220 --height=120"
 TITLE="ArchLabs Conky Session"
 WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 OK="--ok-label=Ok"

@@ -62,7 +62,6 @@ USAGE2="\v\tUSAGE:\tal-conkyzen [OPTION]...FILES
 
 ### DIALOG VARIABLES
 DLG="zenity --info"
-DLGDEC="zenity"
 QUESTION="zenity --question --window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 TITLE="ArchLabs Conky Manager"
 WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
@@ -188,7 +187,7 @@ for arg in "$@";do
                         exit 1
                       fi
                       ;;
-        -z          ) SPATH=$($DLGDEC $WINICON --entry --width=350 --height=200 \
+        -z          ) SPATH=$(zenity $WINICON --entry --width=350 --height=200 \
                         --title="Save Conky sessionfile" \
                         --entry-text="New session file name" \
                         --text="<big>File to be saved in</big> \n\n\n$CONKYPATH/\n\n" \
@@ -234,7 +233,7 @@ done
 
 while ! [[ $RET ]];do
     ## Populate dialog from array, get return value(s)
-    RET=$($DLGDEC $WINICON --list --title="$TITLE" \
+    RET=$(zenity $WINICON --list --title="$TITLE" \
     --text="<big>Session will be saved to:</big>\n\n <b>$SESSIONFILE</b>" \
     --checklist --width=450 --height=500 --multiple \
     --column="Select" --column="Conky Name" $LISTCONKY \

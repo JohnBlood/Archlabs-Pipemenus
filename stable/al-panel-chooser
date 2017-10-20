@@ -23,6 +23,7 @@ WINICON="--window-icon=/usr/share/icons/hicolor/256x256/apps/al-hello-logo.png"
 
 
 setup () {
+
     # unsure we're working with clean values while looping
     unset dock
     unset choice
@@ -77,7 +78,7 @@ panelswitch() {
           --text="<big><b>This is the Archlabs Panel chooser</b></big>\n\nWhat would you like to do?" \
           --column Option FALSE "Enable Tint2")
         else
-          choice=$(zenity --info --title="$TITLE" $WINICON --width=300 --height=100 \
+          choice=$(zenity --info --title="$TITLE" $WINICON --width=220 --height=150 \
           --text="<big><b>You have no Panels or docks..</b></big>\n\nPlease install a Panel or a dock")
         fi
 
@@ -87,7 +88,7 @@ panelswitch() {
         fi
 
         if ! [[ $choice ]]; then  # ok pressed but no choice
-          sure=$(zenity $WINICON --title="$TITLE" --question --width=150 --height=100 \
+          sure=$(zenity $WINICON --title="$TITLE" --question --width=220 --height=150 \
           --ok-label="Yes Please" --cancel-label="No Thanks" \
           --text="<big><b>Nothing Chosen</b></big>\n\nWant to go back?")
 
@@ -122,8 +123,8 @@ panelswitch() {
 
             launch-polybar > /dev/null 2>&1 # launch polybar (tint2 MUST NOT be running) send its output to /dev/null
 
-            sure=$(zenity $WINICON --title="$TITLE" --question --width=200 \
-            --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+            sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+            --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
             --text="<big><b>Polybar Setup Complete</b></big>\n\nWant to do something else?")
 
             if [[ $? == 1 ]]; then  # cancel button
@@ -159,8 +160,8 @@ panelswitch() {
             volumeicon &
             al-tint2-session > /dev/null 2>&1  # launch tint2
 
-            sure=$(zenity $WINICON --title="$TITLE" --question --width=200 \
-            --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+            sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+            --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
             --text="<big><b>Tint2 Setup Complete</b></big>\n\nWant to do something else?")
 
             if [[ $? == 1 ]]; then  # cancel button
@@ -188,7 +189,7 @@ panelswitch() {
 
                 dock=$(zenity --list --checklist --multiple $WINICON --title="$TITLE" \
                 --text="\n<big><b>Please choose a dock to setup</b></big>\n" \
-                --column="Select" --column="Dock" $DOCKS )
+                --width=300 --height=350 --column="Select" --column="Dock" $DOCKS )
 
                 if [[ $? == 1 ]]; then  # cancel button (loops back to main selection)
                   dock="nil"
@@ -198,8 +199,8 @@ panelswitch() {
 
 
                 if ! [[ $dock ]]; then
-                  sure=$(zenity $WINICON --title="$TITLE" --question --width=150 \
-                  --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+                  sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+                  --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
                   --text="<big><b>Nothing Selected</b></big>\n\nWant to go back?")
 
                   if [[ $? == 1 ]]; then  # cancel button
@@ -218,8 +219,8 @@ panelswitch() {
                     $dock &
                   done
 
-                  sure=$(zenity $WINICON --title="$TITLE" --question --width=200 \
-                  --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+                  sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+                  --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
                   --text="<big><b>Dock Setup Complete</b></big>\n\nWant to do something else?")
 
                   if [[ $? == 1 ]]; then  # cancel button
@@ -249,7 +250,7 @@ panelswitch() {
 
                 dock=$(zenity --list --checklist --multiple $WINICON --title="$TITLE" \
                 --text="\n<big><b>Please choose a dock to disable</b></big>\n" \
-                --column="Select" --column="Dock" $DOCKS )
+                --width=300 --height=350 --column="Select" --column="Dock" $DOCKS )
 
                 if [[ $? == 1 ]]; then  # cancel button
                   dock="nil"
@@ -260,8 +261,8 @@ panelswitch() {
 
                 if ! [[ $dock ]]; then
 
-                  sure=$(zenity $WINICON --title="$TITLE" --question --width=150 \
-                  --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+                  sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+                  --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
                   --text="<big><b>Nothing Selected</b></big>\n\nWant to go back?")
 
                   if [[ $? == 1 ]]; then # cancel button
@@ -276,8 +277,8 @@ panelswitch() {
                     pkill $dock
                   done
 
-                  sure=$(zenity $WINICON --title="$TITLE" --question --width=200 \
-                  --height=100 --ok-label="Yes Please" --cancel-label="No Thanks" \
+                  sure=$(zenity $WINICON --title="$TITLE" --question --width=220 \
+                  --height=150 --ok-label="Yes Please" --cancel-label="No Thanks" \
                   --text="<big><b>Dock Disabled</b></big>\n\nWant to do something else?")
 
                   if [[ $? == 1 ]]; then  # cancel button
@@ -293,5 +294,6 @@ panelswitch() {
     done
 
 }
+
 
 panelswitch
