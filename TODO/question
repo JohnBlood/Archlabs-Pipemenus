@@ -47,10 +47,3 @@ setQuestion() {
 }
 
 setQuestion browser
-
-
-for dir in $(ls); do
-  cd $dir/LC_MESSAGES/
-  sudo rm pantheon-greeter.mo
-  cd /usr/share/locale/
-done
